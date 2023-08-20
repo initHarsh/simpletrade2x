@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+
+    body{
+        background-color: #F6E5F6;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+
+
+
+
+    .navbar{
+        margin-top: 5px;
+        height: 60px;
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        
+    }
+    .nav-center{
+        display: flex;  
+        width: 140px;
+        
+        justify-content: center;
+    }
+    .nav-left-side{
+        padding: 10px;
+        display: flex;
+    }
+    .nav-right-side{
+        padding: 10px;
+        display: flex;
+        margin-left: auto;
+        justify-content: space-between;
+    }
+    .nav-icon{
+        margin-left: 10px;
+        margin-right: 10px;
+        width: 35px;
+    }
+    .nav-icon > svg {
+        width: 28px;
+        height: 28px;
+        color: rgb(92, 92, 92);
+    }
+
+
+
+
+    .welcome-box{
+        height: 80px;
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .welcome-text{
+        font-size: 20px;
+    }
+
+
+
+
+
+    .wallet-box{
+        height: 99px;
+  display: flex;
+ 
+
+  background-color: white;
+  border-radius: 5%;
+  margin: 0 30px;
+  flex-direction: column;
+    }
+    .wallet-label{
+     
+        margin-top: 10px;
+        margin-left: 20px;
+    }
+
+    .wallet-text{
+        font-size: 50px;
+        text-align: center;
+    }
+
+
+
+
+    .trade-box{
+        height: 450px;
+        margin: 10px;
+        margin-top: 20px;
+        background-color: white;
+        border-radius: 5%;
+        box-shadow: 5px 5px 5px #f7c1f7;
+    }
+    .chart-box{
+        height: 350px;
+        margin-top: 50px;
+    }
+
+    .trade-button-box{
+        display: flex;
+        justify-content: space-evenly;
+    }
+    .trade-button{
+        padding: 10px;
+        width: 30%;
+        border-radius: 5%;
+        color: white;
+        text-align: center;
+        cursor: pointer;
+        
+    }
+
+    .trade-buy-button{
+        background-color: #2ECD85;
+    }
+    .trade-sell-button{
+        background-color: #F6465D;
+    }
+            
+
+
+
+
+    .ad-box{
+        margin: 25px;
+        background-color: #ffffff;
+        padding: 50px;
+    }
+
+    .ad-box > h3 {
+        margin-bottom: 10px;
+        font-family: 'brush script mt',cursive;
+
+    }
+
+
+    .ad-box > p {
+        margin-bottom: 10px;
+        font-family: 'brush script mt',cursive;
+
+    }
+    
+
+    .ad-box > h4 {
+        margin-bottom: 10px;
+        font-family: 'brush script mt',cursive;
+
+    }
+
+
+
+
+
+
+    .popup-background{
+        background-color: rgba(0, 0, 0, 0.5);
+        height: 100vh;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: none;
+        justify-content: center;
+        align-items: center;
+
+    }
+
+    .popup-box{
+        background-color: white;
+        margin: 10px;
+        width: 100%;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+    }
+    .popup-tool-box{
+        
+    }
+
+    .popup-close-button{
+        float: right;
+        font-size: 40px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    .popup-input-box{
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 40px;
+    }
+    .popup-input-label{
+        font-size: 30px;
+    }
+    .popup-input{
+        margin-top: 20px;
+        font-size: 30px;
+        padding: 10px;
+        width: 70%;
+    }
+    .popup-submit-button{
+        margin-top: 30px;
+        margin-bottom: 40px;
+
+        padding: 10px;
+        width: 30%;
+        border-radius: 5%;
+        color: white;
+        text-align: center;
+        background-color: #2ECD85;
+        cursor: pointer;
+
+    }
+
+
+
+
+</style>
+<body>
+
+
+
+    <nav class="navbar">
+        <div class="nav-left-side">
+            <div class="nav-home-icon nav-icon">
+                <img  height="100%" src="./home.png">
+            </div>
+        </div>
+        <div class="nav-center">
+            <img  height="100%" src="./cryptocurrency.png">
+
+        </div>
+        
+
+        <div class="nav-right-side">
+             <div class="nav-deposit-icon nav-icon">
+                <img  height="100%" src="./deposit.png">
+            </div>
+             <div class="nav-withdraw-icon nav-icon">
+                <img  height="100%" src="./withdraw.png">
+            </div>
+             <div class="nav-user-icon nav-icon">
+                <img  height="100%" src="./user.png">
+            </div>
+        </div>  
+    </nav>
+
+
+
+    <div class="welcome-box">
+        <p class="welcome-text">
+            Welcome Test User
+        </p>
+    </div> 
+
+
+
+    <div class="wallet-box">
+        <p class="wallet-label">AMOUNT</p>
+        <p class="wallet-text">
+            ₹ 1,000
+        </p>
+    </div> 
+
+
+
+    <div class="trade-box">
+        
+        <div class="chart-box">
+  <!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div id="tradingview_dccb6"></div>
+    <div class="tradingview-widget-copyright"><a href="https://in.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+    new TradingView.widget(
+    {
+    "width": 350,
+    "height": 350,
+    "symbol": "BINANCE:MATICUSDT.P",
+    "interval": "5",
+    "timezone": "Etc/UTC",
+    "theme": "light",
+    "style": "2",
+    "locale": "in",
+    "enable_publishing": false,
+    "hide_legend": true,
+    "hide_side_toolbar": false,
+    "container_id": "tradingview_dccb6"
+  }
+    );
+    </script>
+  </div>
+  <!-- TradingView Widget END -->
+        </div>
+
+        <div class="trade-button-box">
+            <div class="trade-buy-button trade-button">
+                Buy
+            </div>
+            <div class="trade-sell-button trade-button">
+                Sell
+            </div>
+        </div>
+    </div>
+    
+    
+<img width="100%" src="./s2.png">
+
+
+
+
+<!-- 
+
+<div class="ad-box">
+    <h3>START TRADING NOW</h3>
+    <p>
+        TRADE WITH YOUR UPI INSTANT
+        AND BANK ACCOUNT AT BEST RETURN
+    </p>
+    <h4>
+        START EXPLORING WITH
+        EFECTIVE PRICES
+    </h4>
+</div>
+
+
+<div class="ad-box">
+    <h3>EARN EASILY</h3>
+    <p>
+        
+ EARN WITH ONLY FEW STEPS :
+ ANALYSE THE MARKET PROPERLY AND
+ MAKE DIFFERENT STRATEGIES
+    </p>
+    <h4>
+        WITHDRAW YOUR MONEY
+        WITH ONLY ONE CLICK
+        
+    </h4>
+</div>
+
+
+
+<div class="ad-box">
+    <h3>GET REGULAR INCOME</h3>
+    <p>
+        REFER WITH YOUR FAMILY AND FRIEND
+        AND GET 2% OF THEIR EVERY PROFITS
+        AND ALSO 1% WITH THEIR REFERRELS
+
+    </p>
+    <h4>
+
+        MAKE QUICK AND EASY
+        MONEY BY REFERRING
+
+    </h4>
+</div> -->
+
+
+
+
+
+
+
+
+
+    
+<img width="100%" src="./footer.png">
+
+
+
+
+
+
+<!-- Popups  -->
+
+    <div class="popup-background">
+        <div class="popup-box">
+    
+            <div class="popup-tool-box">
+                <div class="popup-close-button">&#10005;</div>
+            </div>
+
+            <div class="wallet-box">
+                <p class="wallet-label">BALANCE</p>
+                <p class="wallet-text">
+                    ₹ 1,000
+                </p>
+            </div>
+
+            <div class="popup-input-box">
+                <div class="popup-input-label">Enter trade amount</div>
+                <input type="number" class="popup-input" name="" id="">
+                <div class="popup-submit-button">Null</div>
+            </div>
+    
+        </div>
+    </div>
+
+
+
+
+
+<script>
+
+// functions
+function openPopup(tradeType){
+    document.querySelector('.popup-background').style.display = "flex"
+    let submitButton = document.querySelector('.popup-submit-button')
+
+    if (tradeType == "buy" ) {
+        submitButton.style.background="#2ECD85"
+        submitButton.innerText = "Buy"
+    } else if (tradeType == "sell") {
+        submitButton.style.background="#F6465D"
+        submitButton.innerText="Sell"
+    }
+}
+
+
+function closePopup(){
+    document.querySelector('.popup-background').style.display = "none"
+}
+
+
+
+// Event listeners
+
+document.querySelector('.trade-buy-button').addEventListener('click',()=>{
+    openPopup("buy")
+})
+
+document.querySelector('.trade-sell-button').addEventListener('click',()=>{
+    openPopup("sell")
+})
+
+// Popup close button
+document.querySelector('.popup-close-button').addEventListener('click',()=>{
+    closePopup()
+})
+
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
