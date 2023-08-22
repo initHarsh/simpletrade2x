@@ -53,6 +53,36 @@ function addUser(user){
 
 }
 
+// 
+
+
+function addUserDeposit(userId , depositAmount ) {
+    let result = {
+        depositDone : false
+    }
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].wallet.freeBalance += depositAmount
+            users[i].wallet.totalDeposits += depositAmount
+
+            result.depositDone = true
+
+            // end loop
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User deposited amount : '+ depositAmount)
+            })
+        
+        }
+    }
+
+    return result
+
+}
 
 
 function findByEmail(email){
@@ -176,6 +206,9 @@ function checkCookie(req,res,next){
 
 
 
+
+
+
 // Routes 
 
 app.get('/',(req,res)=>{
@@ -195,6 +228,9 @@ app.get('/login',(req,res)=>{
 app.get('/user',checkCookie,(req,res)=>{
     res.sendFile(dir+'/user.html')
 })
+
+
+
 
 
 // Post routes
@@ -334,6 +370,95 @@ app.post('/login',(req,res) => {
 
 
 })
+
+
+
+
+
+// data route protector
+
+function dataCheckCookie(req,res,next){
+
+
+    if (!req.cookies.user) {
+        res.send({staus : "failed" , msg :  "No cookie" , redirect : true , redirectLink : "/login"})
+        console.log("No cookie")
+        return
+    } 
+    
+    let idFound = findById(req.cookies.user.id)
+
+    if(idFound.userFound == false ){
+        res.send({staus : "failed" , msg :  "No cookie" , redirect : true , redirectLink : "/login"})
+        console.log('cookie user not found')
+
+    } else if (idFound.user.cookie.cookieHash == req.cookies.user.hash) {
+
+        if (idFound.user.cookie.expireTime < Date.now() ) {
+
+            res.send({staus : "failed" , msg :  "No cookie" , redirect : true , redirectLink : "/login"})
+            console.log('cookie expired')
+     
+        } else {
+            res.locals.user = idFound.user
+            console.log( res.locals)
+            console.log("cookie accepted")
+            next()
+        }
+    }
+
+
+}
+
+
+
+// data routes
+
+
+app.get('/data/user/wallet', dataCheckCookie ,(req,res)=>{
+    res.send({status : "passed" , msg : res.locals.user.wallet })
+})
+
+
+
+
+
+
+
+// update data routes
+
+app.get('/admin/deposit',(req,res) => {
+    console.log(req.query)
+
+    if (!req.query.email) {
+        res.send("provide email")
+
+    } else if (!req.query.deposit) {
+        res.send("provide deposit amount")
+
+    } else {
+        emailFound = findByEmail(req.query.email)
+
+        if (!emailFound.userFound) {
+            res.send("Email not found")
+        } else {
+            addUserDeposit(emailFound.user.id , parseInt(req.query.deposit) )
+            res.send("done")
+        }
+
+    }
+})
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Server listener

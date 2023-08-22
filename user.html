@@ -275,7 +275,7 @@
     <div class="wallet-box">
         <p class="wallet-label">AMOUNT</p>
         <p class="wallet-text">
-            ₹ 1,000
+            fetching
         </p>
     </div> 
 
@@ -403,7 +403,7 @@
             <div class="wallet-box">
                 <p class="wallet-label">BALANCE</p>
                 <p class="wallet-text">
-                    ₹ 1,000
+                    fetching
                 </p>
             </div>
 
@@ -461,7 +461,28 @@ document.querySelector('.popup-close-button').addEventListener('click',()=>{
 
 
 
+// get data from api
 
+function getWalletData(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET","/data/user/wallet");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    xhttp.send(  )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+        document.querySelector('.wallet-text').innerText = "₹ "+ response.msg.freeBalance
+
+        if(response.redirect == true ){
+            window.location = response.redirectLink
+        }
+    }
+}
+
+// function execute at load
+getWalletData()
 
 
 
