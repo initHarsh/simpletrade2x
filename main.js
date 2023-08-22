@@ -149,6 +149,11 @@ function addUserCookie(cookieHash,userId){
 
 function checkCookie(req,res,next){
 
+    if (!req.cookies.user) {
+        res.redirect('/login')
+        return
+    } 
+    
     let idFound = findById(req.cookies.user.id)
 
     if(idFound.userFound == false ){
