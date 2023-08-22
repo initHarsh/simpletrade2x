@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+</head>
+
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+
+    body{
+        background-color: #F6E5F6;
+        font-family: sans-serif;
+    }
+
+
+    .navbar{
+     
+        height: 60px;
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        background-color: gray;
+    }
+
+    .form-box-container{
+        display: flex;
+    }
+    .form-box{
+        margin-top: 100px;
+        background-color: white;
+        width: 100%;
+        margin-left: 10px;
+        margin-right: 10px;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .form-heading{
+        font-size: 26px;
+        margin: 20px 0;
+    }
+
+
+    .form-input-box{
+       display: flex;
+       flex-direction: column;
+       width:80%;
+       margin-bottom: 40px;
+    }
+
+    .form-input-label{
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    .form-input{
+        font-size: 18px;
+        padding: 5px;
+        margin-bottom: 10px;
+        
+    }
+
+    .form-submit-button{
+        padding: 10px;
+        width: 30%;
+        border-radius: 5%;
+        color: white;
+        text-align: center;
+        cursor: pointer;
+        background-color: #ff00ff;
+        margin-bottom: 40px;
+
+    }
+
+
+    
+
+
+</style>
+<body>
+    <nav class="navbar">
+
+    </nav>
+
+
+
+    <div class="form-box-container">
+        <div class="form-box">
+            
+            <div class="form-heading">
+                Sign Up
+            </div>
+
+            <div class="form-input-box">
+                <div class="form-input-label">
+                    Name
+                </div>
+                <input class="form-input input-name" type="text" placeholder="Enter your name">
+                
+                <div class="form-input-label">
+                    Email
+                </div>
+                <input class="form-input input-email" type="text" placeholder="Enter your email">
+
+                <div class="form-input-label">
+                    Mobile No
+                </div>
+                <input class="form-input input-mobile" type="text" placeholder="Enter your Mobile Number">
+
+                <div class="form-input-label">
+                    Password
+                </div>
+                <input class="form-input input-password" type="text" placeholder="Enter your Password">
+           
+            </div>
+            
+            <div class="form-submit-button">
+                Submit
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+<script>
+
+// fiunctions
+
+function sendForm(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/signup");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let formData = getFormData()
+    xhttp.send( JSON.stringify(formData) )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+        alert(response.msg)
+        if(response.redirect == true ){
+            window.location = response.redirectLink
+        }
+    }
+}
+
+
+function getFormData(){
+    let formData ={}
+    formData.name =  document.querySelector('.input-name').value
+    formData.email =  document.querySelector('.input-email').value
+    formData.mobile =  document.querySelector('.input-mobile').value
+    formData.password =  document.querySelector('.input-password').value
+
+    return formData
+}
+
+
+
+// Event listeners
+    // Submit button
+
+    document.querySelector('.form-submit-button').addEventListener('click',()=>{
+        sendForm()
+    })
+
+
+
+
+
+</script>
+
+
+</body>
+</html>
