@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+</head>
+<body>
+    <div class="query-user-box">
+        <h2>Query User details</h2>
+        <p>Email</p>
+        <input type="text" class="query-user-email" placeholder="enter email">
+        <div class="query-user-submit-button">Submit</div>
+        <div class="query-user-response"></div>
+
+    </div>
+
+    <hr>
+
+    <div class="add-deposit-box" >
+        <h2>Add Deposit</h2>
+        <p>Email</p>
+        <input type="text" class="add-deposit-email" placeholder="enter email">
+        <p>Deposit amount</p>
+        <input type="text" class="add-deposit-amount" placeholder="enter deposit amount">
+        <div class="add-deposit-submit-button">Submit</div>
+        <div class="add-deposit-response"></div>
+
+
+    </div>
+
+    <hr>
+
+    <div class="block-user-trade-box">
+        <h2>Block user trade</h2>
+        <p>Email</p>
+        <input type="text" class="block-user-trade-email" placeholder="enter email">
+        <div class="block-user-trade-submit-button">Submit</div>
+        <div class="block-user-trade-response"></div>
+
+    </div>
+
+    <hr>
+
+    <div class="unblock-user-trade-box">
+        <h2>Unblock user trade</h2>
+        <p>Email</p>
+        <input type="text" class="unblock-user-trade-email" placeholder="enter email">
+        <div class="unblock-user-trade-submit-button">Submit</div>
+        <div class="unblock-user-trade-response"></div>
+
+    </div>
+
+    <hr>
+
+
+<script>
+
+// functions
+function queryUser(){
+    // clear the response area
+    document.querySelector('.query-user-response').innerText = "fetching"
+
+    let queryUserEmail = document.querySelector('.query-user-email').value
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/admin/query/user");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let formData = {
+        email : queryUserEmail
+    }
+    xhttp.send( JSON.stringify(formData) )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+
+        document.querySelector('.query-user-response').innerText = JSON.stringify( response.msg )
+      
+    }
+}
+
+
+function addDeposit(){
+    // clear the response area
+    document.querySelector('.add-deposit-response').innerText = "fetching"
+
+    let addDepositEmail = document.querySelector('.add-deposit-email').value
+    let addDepositAmount = document.querySelector('.add-deposit-amount').value
+
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/admin/add/deposit");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let formData = {
+        email : addDepositEmail ,
+        amount : addDepositAmount
+    }
+
+    xhttp.send( JSON.stringify(formData) )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+
+        document.querySelector('.add-deposit-response').innerText = JSON.stringify( response.msg )
+      
+    }
+}
+
+
+
+function blockUserTrade(){
+    // clear the response area
+    document.querySelector('.block-user-trade-response').innerText = "fetching"
+
+    let blockUserTradeEmail = document.querySelector('.block-user-trade-email').value
+
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/admin/block/user-trade");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let formData = {
+        email : blockUserTradeEmail
+    }
+
+    xhttp.send( JSON.stringify(formData) )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+
+        document.querySelector('.block-user-trade-response').innerText = JSON.stringify( response.msg )
+      
+    }
+}
+
+
+
+function unblockUserTrade(){
+    // clear the response area
+    document.querySelector('.unblock-user-trade-response').innerText = "fetching"
+
+    let unblockUserTradeEmail = document.querySelector('.unblock-user-trade-email').value
+
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/admin/unblock/user-trade");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let formData = {
+        email : unblockUserTradeEmail
+    }
+
+    xhttp.send( JSON.stringify(formData) )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+
+        document.querySelector('.unblock-user-trade-response').innerText = JSON.stringify( response.msg )
+      
+    }
+}
+
+
+// event listeners
+
+    document.querySelector('.query-user-submit-button').addEventListener('click',()=>{
+        queryUser()
+    })
+
+
+
+    document.querySelector('.add-deposit-submit-button').addEventListener('click',()=>{
+        addDeposit()
+    })
+
+    document.querySelector('.block-user-trade-submit-button').addEventListener('click',()=>{
+        blockUserTrade()
+    })
+
+    document.querySelector('.unblock-user-trade-submit-button').addEventListener('click',()=>{
+        unblockUserTrade()
+    })
+
+</script>
+    
+</body>
+</html>

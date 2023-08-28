@@ -4,8 +4,13 @@ const express = require('express')
 const app = express()
 const fs = require('fs')
 var cookieParser = require('cookie-parser')
+var crypto = require('crypto');
+const { queryOrder } = require('./binance');
 
 
+const { precisionTo } = require(__dirname+'/tc.js')
+
+const binance = require(__dirname+"/binance.js")
 
 //Server variables
 const port = 3000
@@ -141,6 +146,54 @@ function findById(id){
 }
 
 
+// admin functions
+
+function blockUserTrade(userId) {
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].canPlaceTrade = false
+
+            // end loop
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User trade blocked ')
+            })
+        
+        }
+    }
+
+}
+
+
+function unblockUserTrade(userId) {
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].canPlaceTrade = true
+
+            // end loop
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User trade unblocked ')
+            })
+        
+        }
+    }
+
+}
+
+
+
+
+
+
 function addUserCookie(cookieHash,userId){
     let result = {
         cookieAdded: false
@@ -199,10 +252,226 @@ function checkCookie(req,res,next){
             next()
             console.log("cookie accepted")
         }
+    } else {
+        res.redirect('/login')
     }
 
 }
 
+
+// trade functions
+
+// trade functions 
+
+function convertToUsdt(amountInr){
+    return ( amountInr / 90)
+}
+
+function convertToInr(amountUsdt){
+    return ( amountUsdt * 90)
+}
+
+async function placeTrade(userId , side , amount) {
+    let result = {}
+
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].tradeInProgress = true
+            users[i].wallet.freeBalance -= amount
+            users[i].wallet.inOrder += amount
+
+            // end loop
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User trade Initiated')
+            })
+        
+        }
+    }
+    
+
+    // calculate quantity 
+    // let symbolName = "MATICUSDT"
+    // let symbolQuantityPrecision = 0
+    // let symbolPricePrecision = 4
+    // let leverage = 50
+    // let stopLossPercentage = 0.017
+    // let takeProfitPercentage = 0.023
+
+    let symbolName = "BTCUSDT"
+    let symbolQuantityPrecision = 3
+    let symbolPricePrecision = 2
+    let leverage = 50
+    let stopLossPercentage = 0.017
+    let takeProfitPercentage = 0.023
+
+
+    let symbolPrice = await binance.getPrice(symbolName)
+
+    let usdt = convertToUsdt(amount)
+
+    let usdtBalance = usdt * leverage
+    // hold 0.05% for fee
+    let usdtForFee = usdtBalance * 0.0005
+
+    usdtBalance = usdtBalance - usdtForFee
+
+
+    let symbolQuantity = usdtBalance / Number(symbolPrice.price)
+
+    // get price precison to : 0
+    symbolQuantity = precisionTo( symbolQuantity , symbolQuantityPrecision)
+
+    let symbolQuantityCost = Number(symbolPrice.price) * symbolQuantity
+    let symbolQuantityCostInr = convertToInr(symbolQuantityCost)
+
+    console.log({
+        amount,
+        usdtBalance,
+        usdtForFee,
+        symbolQuantity,
+        symbolQuantityCost
+    })
+
+    let positionSide = "LONG"
+    let sideReverse = "SELL"
+
+    if (side == "SELL") {
+        positionSide = "SHORT"
+        sideReverse = "BUY"
+    } 
+
+    let orderDetail = {
+        symbol : symbolName ,
+        side : side ,
+        positionSide : positionSide ,
+        type : "MARKET" ,
+        quantity : symbolQuantity ,
+
+    }
+
+    console.log(orderDetail)
+    let mainOrder = await binance.newOrder(orderDetail)
+    console.log(mainOrder)
+
+    let queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
+    console.log(queryMainOrder)
+
+
+    // configure stop loss and take profit
+    let stopLossPrice 
+    let takeProfitPrice
+
+    if (side == "BUY") {
+        stopLossPrice = Number(queryMainOrder.avgPrice) - ( Number(queryMainOrder.avgPrice) * stopLossPercentage )
+        takeProfitPrice = Number(queryMainOrder.avgPrice) + ( Number(queryMainOrder.avgPrice) * takeProfitPercentage )
+        stopLossPrice = precisionTo(stopLossPrice , symbolPricePrecision)
+        takeProfitPrice = precisionTo(takeProfitPrice , symbolPricePrecision)
+
+
+    } else {
+        stopLossPrice = Number(queryMainOrder.avgPrice) + ( Number(queryMainOrder.avgPrice) * stopLossPercentage )
+        takeProfitPrice = Number(queryMainOrder.avgPrice) - ( Number(queryMainOrder.avgPrice) * takeProfitPercentage )
+        stopLossPrice = precisionTo(stopLossPrice , symbolPricePrecision)
+        takeProfitPrice = precisionTo(takeProfitPrice , symbolPricePrecision)
+    }
+
+    // send stop loss order
+
+    let stopLossDetail = {
+        symbol : symbolName ,
+        side : sideReverse ,
+        positionSide : positionSide ,
+        type : "STOP_MARKET" ,
+        timeInForce : "GTE_GTC" ,
+        quantity : symbolQuantity ,
+        stopPrice : stopLossPrice
+
+    }
+    console.log(stopLossDetail)
+    let stopLossOrder = await binance.setStopOrder(stopLossDetail)
+    console.log(stopLossOrder)
+ 
+
+    // send take profit order
+
+
+    let takeProfitDetail = {
+        symbol : symbolName ,
+        side : sideReverse ,
+        positionSide : positionSide ,
+        type : "TAKE_PROFIT_MARKET" ,
+        timeInForce : "GTE_GTC" ,
+        quantity : symbolQuantity ,
+        stopPrice : takeProfitPrice
+
+    }
+    console.log(takeProfitDetail)
+    let takeProfitOrder = await binance.setStopOrder(takeProfitDetail)
+    console.log(takeProfitOrder)
+
+    let tradeStatus = {}
+    if ( queryMainOrder.status == "FILLED" && stopLossOrder.status == "NEW" && takeProfitOrder.status == "NEW") {
+        tradeStatus.status ="FILLED"
+        tradeStatus.progress = "PENDING"
+        tradeStatus.amountInr = amount
+        tradeStatus.symbolQuantityCost = symbolQuantityCost
+        tradeStatus.symbolQuantityCostInr = symbolQuantityCostInr
+
+        tradeStatus.symbolQuantity = symbolQuantity
+        tradeStatus.side = side
+        tradeStatus.avgPrice = queryMainOrder.avgPrice
+        tradeStatus.stopLossPrice = stopLossOrder.stopPrice
+        tradeStatus.takeProfitPrice = takeProfitOrder.stopPrice 
+
+        tradeStatus.mainOrderId = queryMainOrder.orderId
+        tradeStatus.stopLossOrderId = stopLossOrder.orderId
+        tradeStatus.takeProfitOrderId= takeProfitOrder.orderId 
+
+
+        tradeStatus.orderTime = Date.now()
+
+        tradeStatus.orderDetails = [mainOrder, queryMainOrder , stopLossOrder ,takeProfitOrder]
+
+    } else {
+        tradeStatus.staus = "FAILED"
+        tradeStatus.errors = [ mainOrder, queryMainOrder , stopLossOrder ,takeProfitOrder]
+    }
+
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+
+            users[i].tradeList.push(tradeStatus)
+            users[i].latestTade = tradeStatus
+
+            // end loop
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User trade placed')
+            })
+        
+        }
+    }
+
+    // let trade = binanceFillTrade(userId ,side , amount ) 
+
+    // if (trade.filledAll == true) {
+        
+    // } else {
+    //     result.status ="failed"
+    //     return result
+    // }
+
+
+}
 
 
 
@@ -229,7 +498,9 @@ app.get('/user',checkCookie,(req,res)=>{
     res.sendFile(dir+'/user.html')
 })
 
-
+app.get('/trade',checkCookie,(req,res) => {
+    res.sendFile(dir + '/trade.html')
+})
 
 
 
@@ -286,6 +557,11 @@ app.post('/signup',(req,res)=>{
             email : req.body.email,
             mobile : req.body.mobile,
             password : req.body.password,
+
+            canPlaceTrade : true ,
+            tradeInProgress : false,
+            tradeList : [] ,
+            latestTade : {} ,
 
             wallet : {
                 freeBalance : 0,
@@ -419,31 +695,119 @@ app.get('/data/user/wallet', dataCheckCookie ,(req,res)=>{
     res.send({status : "passed" , msg : res.locals.user.wallet })
 })
 
+app.get('/data/user/trade', dataCheckCookie ,(req,res)=>{
+    res.send({status : "passed" , msg : res.locals.user.latestTade })
+})
 
 
 
 
+// Admin routes
 
+app.get('/admin', (req,res) => {
+    res.sendFile(dir+'/admin.html')
+    
+})
+
+// Admin data routes 
+
+app.post('/admin/query/user',(req,res) => {
+
+    if(req.body.email == ""|| !req.body.email ){
+        res.send({ status:"failed" , msg: "Please send a valid email : "+req.body.email })
+        return
+    }
+
+    let emailFound = findByEmail(req.body.email)
+
+    if (emailFound.userFound == false) {
+        res.send({ status:"failed" , msg:"No user found with this email : "+req.body.email })
+        return
+
+    } else {
+        let userDetails = {
+            name : emailFound.user.name , 
+            email : emailFound.user.email ,
+            mobile : emailFound.user.mobile ,
+            password : emailFound.user.password ,
+
+            canPlaceTrade : emailFound.user.canPlaceTrade ,
+
+            wallet : emailFound.user.wallet ,
+
+            tradeInProgress : emailFound.user.tradeInProgress ,
+            latestTade : emailFound.user.latestTade ,
+            tradeList : emailFound.user.tradeList ,
+
+            registerTime : emailFound.user.registerTime
+        }
+        res.send({ status:"passed" , msg: userDetails })
+        
+    }
+})
 
 // update data routes
 
-app.get('/admin/deposit',(req,res) => {
-    console.log(req.query)
 
-    if (!req.query.email) {
-        res.send("provide email")
 
-    } else if (!req.query.deposit) {
-        res.send("provide deposit amount")
+app.post('/admin/add/deposit',(req,res) => {
+    console.log(req.body)
+
+    if (!req.body.email || req.body.email == "" ) {
+        res.send({ status:"failed" , msg: "provide email" })
+
+    } else if (!req.body.amount) {
+        res.send({ status:"failed" , msg: "provide deposit amount" })
 
     } else {
-        emailFound = findByEmail(req.query.email)
+        emailFound = findByEmail(req.body.email)
 
         if (!emailFound.userFound) {
-            res.send("Email not found")
+            res.send({ status:"failed" , msg: "Email not found" })
         } else {
-            addUserDeposit(emailFound.user.id , parseInt(req.query.deposit) )
-            res.send("done")
+            addUserDeposit(emailFound.user.id , parseInt(req.body.amount) )
+            res.send({ status:"passed" , msg: "Amount deposited " })
+        }
+
+    }
+})
+
+
+app.post('/admin/block/user-trade' , (req,res) => {
+    console.log(req.body)
+
+    if (!req.body.email || req.body.email == "" ) {
+        res.send({ status:"failed" , msg: "provide email" })
+
+    } else {
+        emailFound = findByEmail(req.body.email)
+
+        if (!emailFound.userFound) {
+            res.send({ status:"failed" , msg: "Email not found" })
+        } else {
+            blockUserTrade(emailFound.user.id )
+            res.send({ status:"passed" , msg: "User Trade , is now Blocked : " + emailFound.user.email  })
+        }
+
+    }
+})
+
+
+
+app.post('/admin/unblock/user-trade' , (req,res) => {
+    console.log(req.body)
+
+    if (!req.body.email || req.body.email == "" ) {
+        res.send({ status:"failed" , msg: "provide email" })
+
+    } else {
+        emailFound = findByEmail(req.body.email)
+
+        if (!emailFound.userFound) {
+            res.send({ status:"failed" , msg: "Email not found" })
+        } else {
+            unblockUserTrade(emailFound.user.id )
+            res.send({ status:"passed" , msg: "User Trade , is now Unblocked : " + emailFound.user.email  })
         }
 
     }
@@ -452,13 +816,65 @@ app.get('/admin/deposit',(req,res) => {
 
 
 
+// trade routes 
+
+app.post("/user/new-trade" , dataCheckCookie , (req,res) => {
+
+    // Check if side parameter is wrong 
+    if ( req.body.side == "BUY" || req.body.side == "SELL" ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "Side parameter is not correct" } )
+        return 
+    }
+
+    // Check if amount parameter is wrong 
+    if ( typeof req.body.amount == "number" && req.body.amount > 0 ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "Amount parameter is not correct" } )
+        return
+    }
+
+    // Check if amount is greater than 100
+    if (  req.body.amount >= 100 ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "Amount must be greater than 100" } )
+        return
+    }
+
+    // Check if user is allowed to place trade 
+    if ( res.locals.user.canPlaceTrade == true ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "User is not allowed to place trade" } )
+        return
+    }
+
+    // Check if user has any trade in progress  
+    if ( res.locals.user.tradeInProgress == false ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "You already have a trade in progress , cant place new trade" } )
+        return
+    }
+
+    // Check if user has enough freebalance  
+
+    if ( res.locals.user.wallet.freeBalance >= req.body.amount ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "You dont have enough balance for this trade" } )
+        return
+    }
 
 
+    placeTrade( res.locals.user.id , req.body.side , req.body.amount )
 
+    res.send({ status : "passed" , msg  : "Trade submitted , refresh if trade doesnt update" })
 
-
-
-
+})
 
 
 // Server listener

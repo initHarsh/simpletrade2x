@@ -227,8 +227,16 @@
         background-color: #2ECD85;
         cursor: pointer;
 
-    }
+    } 
 
+    .trade-detail-box{
+        display: none;
+        background-color: white;
+        margin: 10px;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center
+    }
 
 
 
@@ -321,6 +329,21 @@
         </div>
     </div>
     
+    <div class="trade-detail-box"> 
+        <h1 > Latest Trade</h1>
+        <h1 class="trade-status"></h1>
+        <h1 class="trade-side"></h3>
+        <h2 class="trade-amount"></h4>
+        <div class="trdae-loss-box">
+            Loss at : 
+            <div class="trade-loss"></div> 
+        </div>
+        <div class="trdae-profit-box">
+            Profit at : 
+            <div class="trade-profit"></div>
+         </div>
+
+    </div>
     
 <img width="100%" src="./s2.png">
 
@@ -422,6 +445,9 @@
 
 <script>
 
+// Global Variables
+let tradeSide = "BUY"
+
 // functions
 function openPopup(tradeType){
     document.querySelector('.popup-background').style.display = "flex"
@@ -430,9 +456,15 @@ function openPopup(tradeType){
     if (tradeType == "buy" ) {
         submitButton.style.background="#2ECD85"
         submitButton.innerText = "Buy"
+
+        tradeSide = "BUY"
+
     } else if (tradeType == "sell") {
+
         submitButton.style.background="#F6465D"
         submitButton.innerText="Sell"
+
+        tradeSide = "SELL"
     }
 }
 
@@ -440,6 +472,103 @@ function openPopup(tradeType){
 function closePopup(){
     document.querySelector('.popup-background').style.display = "none"
 }
+
+
+
+
+
+// trade functions 
+
+function getTradeDetails() {
+    let popupAmount = document.querySelector('.popup-input').value
+
+    let details = {
+        side : tradeSide ,
+        amount : Number((popupAmount))
+    }
+
+    return details
+    
+}
+
+function placeNewTrade() {
+
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/user/new-trade");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let tradeDetails = getTradeDetails()
+    xhttp.send( JSON.stringify(tradeDetails) )
+
+    xhttp.onload = function(){
+
+        getWalletData()
+        
+        let response = JSON.parse(this.responseText)
+        alert(response.msg)
+        
+
+        if(response.redirect == true ){
+            window.location = response.redirectLink
+        }
+
+        setTimeout(getTrade , 3000)
+
+
+    }
+}
+
+
+function getTrade() {
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET","/data/user/trade");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+ 
+    xhttp.send(  )
+
+    xhttp.onload = function(){
+
+        console.log(this.responseText)
+        let response = JSON.parse(this.responseText)
+
+        if(response.redirect == true ){
+            window.location = response.redirectLink
+        }
+
+        if(!response.msg.status){
+            return 
+        }
+
+        let trade = response.msg
+        if (trade.status = "FILLED") {
+            document.querySelector('.trade-detail-box').style.display = "flex"
+            document.querySelector('.trade-status').innerText = trade.progress
+            document.querySelector('.trade-side').innerText = trade.side
+            document.querySelector('.trade-amount').innerText = "₹ "+ trade.amountInr
+            document.querySelector('.trade-loss').innerText = trade.stopLossPrice
+            document.querySelector('.trade-profit').innerText = trade.takeProfitPrice
+
+        } else {
+            document.querySelector('.trade-detail-box').style.display = "flex"
+            document.querySelector('.trade-detail-box').innerHTML = "Something went wrong with your trade contact our support or email us"
+
+            
+        }
+
+    }
+
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -454,11 +583,15 @@ document.querySelector('.trade-sell-button').addEventListener('click',()=>{
 })
 
 // Popup close button
+
 document.querySelector('.popup-close-button').addEventListener('click',()=>{
     closePopup()
 })
 
-
+// popup trade button 
+document.querySelector('.popup-submit-button').addEventListener('click',()=>{
+    placeNewTrade()
+})
 
 
 // get data from api
@@ -473,7 +606,9 @@ function getWalletData(){
 
     xhttp.onload = function(){
         let response = JSON.parse(this.responseText)
-        document.querySelector('.wallet-text').innerText = "₹ "+ response.msg.freeBalance
+        document.querySelectorAll('.wallet-text')[0].innerText = "₹ "+ response.msg.freeBalance
+        document.querySelectorAll('.wallet-text')[1].innerText = "₹ "+ response.msg.freeBalance
+
 
         if(response.redirect == true ){
             window.location = response.redirectLink
@@ -483,7 +618,7 @@ function getWalletData(){
 
 // function execute at load
 getWalletData()
-
+getTrade()
 
 
 </script>
