@@ -23,7 +23,7 @@ function createSignature(query){
 
 
 
-// get price function
+// get price function   
 async function getPrice(symbol){
 
     let query = "?symbol="+symbol
@@ -66,7 +66,7 @@ async function queryOrder(detail) {
 }
 
 
-
+ 
 // Fill market order 
 async function newOrder(detail){
 
@@ -94,7 +94,7 @@ async function newOrder(detail){
     return response.json()
 }
 
-//  set stop loss and take profit order function jk kb hjjhgyu 
+//  set stop loss and take profit order function 
 
 
 async function setStopOrder(detail){
@@ -127,7 +127,34 @@ async function setStopOrder(detail){
 }
 
 
-module.exports = { getPrice , queryOrder , newOrder , setStopOrder }
+
+// cancel order by orderId
+async function cancelOrder(detail) {
+
+    let query = "symbol="+ detail.symbol 
+    query += "&orderId=" + detail.orderId
+    query += "&timestamp=" + Date.now()
+
+    query += "&signature=" + createSignature(query)
+
+
+    let url = B.baseUrl + "/fapi/v1/order" + "?" + query
+
+    let fetchOptions = {
+        method : "DELETE" ,
+        headers : {
+            "X-MBX-APIKEY" : B.apiKey ,
+            "Content-Type" : "application/json"
+        }
+    }
+
+    let response = await fetch( url , fetchOptions )
+
+    return response.json()
+}
+
+
+module.exports = { getPrice , queryOrder , newOrder , setStopOrder , cancelOrder }
 
 console.log(B)
 

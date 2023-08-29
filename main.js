@@ -28,7 +28,7 @@ app.use(express.static(__dirname))
 
 // Database 
 let users = []
-
+let usersTrading = []
 
 
 // Load databases from files
@@ -43,9 +43,27 @@ fs.readFile('users.json','utf-8',(err,data)=>{
     }
 })
 
+fs.readFile('usersTrading.json','utf-8',(err,data)=>{
+    if (err) {
+        
+    } else {
+        usersTrading = JSON.parse(data)
+        console.log('*** Loaded users Trading from databases')
+        console.log(" Users Trading : "+ usersTrading.length)
+
+    }
+})
 
 
 // Database Functions 
+
+
+function updateUsersTradingList(){
+    fs.writeFile('usersTrading.json',JSON.stringify(usersTrading),(err)=>{
+        if (err) throw err
+        console.log('Updated Users Trading File, Total Users trading now : '+usersTrading.length)
+    })
+}
 
 function addUser(user){
     users.push(user)
@@ -189,7 +207,29 @@ function unblockUserTrade(userId) {
 
 }
 
+// 
 
+function addUsersTradingList(userId) {
+    usersTrading.push(userId)
+    console.log("Added a user to user trading list :" + userId)
+    console.log("Users trading now : " + usersTrading.length)
+
+    updateUsersTradingList()
+}
+
+function removeUsersTradingList(userId) {
+    
+    for(let i = 0; i < usersTrading.length ; i++) {
+        if (usersTrading[i] == userId ) {
+            //remove the user id
+            usersTrading.splice(i,1)
+        }
+    }
+    console.log("Removed a user to user trading list :" + userId)
+    console.log("Users trading now : " + usersTrading.length)
+
+    updateUsersTradingList()  
+}
 
 
 
@@ -300,14 +340,14 @@ async function placeTrade(userId , side , amount) {
     // let symbolPricePrecision = 4
     // let leverage = 50
     // let stopLossPercentage = 0.017
-    // let takeProfitPercentage = 0.023
+    // let takeProfitPercentage = 0.023 
 
     let symbolName = "BTCUSDT"
     let symbolQuantityPrecision = 3
     let symbolPricePrecision = 2
     let leverage = 50
-    let stopLossPercentage = 0.017
-    let takeProfitPercentage = 0.023
+    let stopLossPercentage = 0.01
+    let takeProfitPercentage = 0.01 
 
 
     let symbolPrice = await binance.getPrice(symbolName)
@@ -416,9 +456,15 @@ async function placeTrade(userId , side , amount) {
 
     let tradeStatus = {}
     if ( queryMainOrder.status == "FILLED" && stopLossOrder.status == "NEW" && takeProfitOrder.status == "NEW") {
+        
+  
+        addUsersTradingList(userId)
+        
+
         tradeStatus.status ="FILLED"
         tradeStatus.progress = "PENDING"
         tradeStatus.amountInr = amount
+        tradeStatus.symbolName = symbolName
         tradeStatus.symbolQuantityCost = symbolQuantityCost
         tradeStatus.symbolQuantityCostInr = symbolQuantityCostInr
 
@@ -448,7 +494,7 @@ async function placeTrade(userId , side , amount) {
 
 
             users[i].tradeList.push(tradeStatus)
-            users[i].latestTade = tradeStatus
+            users[i].latestTrade = tradeStatus
 
             // end loop
             i = users.length
@@ -473,6 +519,61 @@ async function placeTrade(userId , side , amount) {
 
 }
 
+//
+
+
+function userProfit(userId) {
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].latestTrade.progress = "PROFIT"
+            users[i].tradeResultList.push(users[i].latestTrade)
+
+            users[i].wallet.freeBalance += users[i].latestTrade.amountInr * 2
+            users[i].wallet.inOrder -= users[i].latestTrade.amountInr
+
+
+
+            users[i].latestTrade = {}
+            users[i].tradeInProgress = false
+
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User profit')
+            })
+        
+        }
+    }
+}
+
+function userLoss(userId) {
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].latestTrade.progress = "LOSS"
+            users[i].tradeResultList.push(users[i].latestTrade)
+
+            
+            users[i].wallet.inOrder -= users[i].latestTrade.amountInr
+
+
+            users[i].latestTrade = {}
+            users[i].tradeInProgress = false
+
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User Loss')
+            })
+        
+        }
+    }
+}
 
 
 
@@ -504,7 +605,7 @@ app.get('/trade',checkCookie,(req,res) => {
 
 
 
-// Post routes
+// Post routesv  jhuibbbugn jkkjhjjljhvhjygm c jck 
 
 
 app.post('/signup',(req,res)=>{
@@ -561,7 +662,8 @@ app.post('/signup',(req,res)=>{
             canPlaceTrade : true ,
             tradeInProgress : false,
             tradeList : [] ,
-            latestTade : {} ,
+            tradeResultList : [],
+            latestTrade : {} ,
 
             wallet : {
                 freeBalance : 0,
@@ -696,7 +798,11 @@ app.get('/data/user/wallet', dataCheckCookie ,(req,res)=>{
 })
 
 app.get('/data/user/trade', dataCheckCookie ,(req,res)=>{
-    res.send({status : "passed" , msg : res.locals.user.latestTade })
+    res.send({status : "passed" , msg : res.locals.user.latestTrade })
+})
+
+app.get('/data/user/trade-result', dataCheckCookie ,(req,res)=>{
+    res.send({status : "passed" , msg : res.locals.user.tradeResultList })
 })
 
 
@@ -736,8 +842,9 @@ app.post('/admin/query/user',(req,res) => {
             wallet : emailFound.user.wallet ,
 
             tradeInProgress : emailFound.user.tradeInProgress ,
-            latestTade : emailFound.user.latestTade ,
+            latestTrade : emailFound.user.latestTrade ,
             tradeList : emailFound.user.tradeList ,
+            tradeResultList : emailFound.user.tradeResultList ,
 
             registerTime : emailFound.user.registerTime
         }
@@ -888,8 +995,68 @@ app.listen(port,()=>{
 
 
 
+async function checkUsersTradeStatus() {
+    console.log("checking user trades status")
+    for(let i = 0; i < usersTrading.length; i++) {
+        let idFound = findById(usersTrading[i])
+
+        if (idFound.userFound == false) {
+            removeUsersTradingList(usersTrading[i])
+
+        } else if (idFound.user.latestTrade.progress == "PENDING") {
+            await checkOrderStatus(
+                idFound.user.latestTrade.symbolName,
+                idFound.user.latestTrade.stopLossOrderId,
+                idFound.user.latestTrade.takeProfitOrderId,
+                usersTrading[i] 
+            )
+
+        } else {
+            removeUsersTradingList(usersTrading[i])
+        }
+    }
+}
+
+
+async function checkOrderStatus(symbolName , stopLossOrderId , takeProfitOrderId , userId ){
+    console.log(userId + " checking")
+    let stopLossOrderDetail = {
+        symbol : symbolName ,
+        orderId : stopLossOrderId
+    }
+
+    let takeProfitOrderDetail = {
+        symbol : symbolName ,
+        orderId : takeProfitOrderId
+    }
+
+    let stopLossOrder = await binance.queryOrder(stopLossOrderDetail)
+    console.log(stopLossOrder)
+    if (stopLossOrder.status == "FILLED") {
+        await binance.cancelOrder(takeProfitOrderDetail)
+
+        
+        userLoss(userId)
+        removeUsersTradingList(userId)
+    } 
+
+
+    let takeProfitOrder = await binance.queryOrder(takeProfitOrderDetail)
+    console.log(takeProfitOrder)
+    if (takeProfitOrder.status == "FILLED") {
+        await binance.cancelOrder(stopLossOrderDetail)
+
+        userProfit(userId)
+        removeUsersTradingList(userId)
+    } 
+
+}
+
+
+
+setInterval(checkUsersTradeStatus , 30000)
 
 
 
 
-
+////  jjhb ghgh jjmn
