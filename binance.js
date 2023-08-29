@@ -6,7 +6,7 @@ dotenv.config()
 let B = {
     apiKey : process.env.APIKEY ,
     secretKey : process.env.SECRETKEY  ,
-    baseUrl : "https://testnet.binancefuture.com" ,
+    baseUrl : process.env.BASEURL ,
 
 }
 
