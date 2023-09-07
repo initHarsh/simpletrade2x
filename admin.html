@@ -53,6 +53,28 @@
 
     <hr>
 
+    <div class="user-trade-profit-box">
+        <h2>Make user trade Profit</h2>
+        <p>Email</p>
+        <input type="text" class="user-trade-profit-email" placeholder="enter email">
+        <div class="user-trade-profit-submit-button">Submit</div>
+        <div class="user-trade-profit-response"></div>
+
+    </div>
+
+    <hr>
+
+    <div class="user-trade-loss-box">
+        <h2>Make user trade loss</h2>
+        <p>Email</p>
+        <input type="text" class="user-trade-loss-email" placeholder="enter email">
+        <div class="user-trade-loss-submit-button">Submit</div>
+        <div class="user-trade-loss-response"></div>
+
+    </div>
+
+    <hr>
+
 
 <script>
 
@@ -167,6 +189,64 @@ function unblockUserTrade(){
 }
 
 
+
+
+
+function userTradeProfit(){
+    // clear the response area
+    document.querySelector('.user-trade-profit-response').innerText = "fetching"
+
+    let userTradeProfitEmail = document.querySelector('.user-trade-profit-email').value
+
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/admin/user/resolve-trade/profit");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let formData = {
+        email : userTradeProfitEmail
+    }
+
+    xhttp.send( JSON.stringify(formData) )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+
+        document.querySelector('.user-trade-profit-response').innerText = JSON.stringify( response.msg )
+      
+    }
+}
+
+
+function userTradeLoss(){
+    // clear the response area
+    document.querySelector('.user-trade-loss-response').innerText = "fetching"
+
+    let userTradeLossEmail = document.querySelector('.user-trade-loss-email').value
+
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST","/admin/user/resolve-trade/loss");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+    let formData = {
+        email : userTradeLossEmail
+    }
+
+    xhttp.send( JSON.stringify(formData) )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+
+        document.querySelector('.user-trade-loss-response').innerText = JSON.stringify( response.msg )
+      
+    }
+}
+
+
+
 // event listeners
 
     document.querySelector('.query-user-submit-button').addEventListener('click',()=>{
@@ -186,6 +266,15 @@ function unblockUserTrade(){
     document.querySelector('.unblock-user-trade-submit-button').addEventListener('click',()=>{
         unblockUserTrade()
     })
+
+    document.querySelector('.user-trade-profit-submit-button').addEventListener('click',()=>{
+        userTradeProfit()
+    })
+
+    document.querySelector('.user-trade-loss-submit-button').addEventListener('click',()=>{
+        userTradeLoss()
+    })
+
 
 </script>
     

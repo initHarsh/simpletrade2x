@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User</title>
+</head>
+
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        background-color: #252525;
+        display: flex;
+        justify-content: center;
+        font-family: sans-serif;
+
+    }
+
+    .bold{
+        font-weight: 600;
+    }
+
+
+
+    .app{
+        background-color: white;
+
+        max-width:450px ;
+        width: 100%;
+    }
+
+    .navbar{
+        background-color: #e9e9d6;
+        display: flex;
+        padding: 20px 20px;
+    }
+
+
+    .welcome-box{
+        background-color: #e9e9d6;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .welcome-msg{
+        background-color: white;
+        font-size: x-large;
+        text-align: center;
+        width: 80%;
+        border-radius: 40px;
+        padding: 10px 20px;
+        
+    }
+
+    .wallet-box-container{
+        display: flex;
+        justify-content: center;
+        background-color: #e9e9d6;
+        background-image: conic-gradient(#e9e9d6 0deg ,#e9e9d6 90deg , white 90deg, white 270deg, #e9e9d6 270deg);
+        padding: 30px 0;
+    }
+
+    .wallet-box{
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        width: 80%;
+        border-radius: 40px;
+        padding: 10px 20px;
+        box-shadow: 0px 2px 4px grey;
+
+    }
+    .wallet-balance{
+        background-color: #e9e9d6;
+        font-size: x-large;
+        text-align: center;
+        width: 80%;
+        border-radius: 40px;
+        padding: 10px 20px;
+
+        margin: 20px 0;
+    }
+    .chart-title{
+        padding: 10px;
+        font-size: 25px;
+    }
+    .chart-box{
+        height: 500px;
+    }
+    .tradingview-box{
+        height: 100%;
+    }
+
+    .trade-box-container{
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+        background-color: white;
+        background-image: conic-gradient(white 0deg ,white 90deg , #e9e9d6 90deg, #e9e9d6 270deg, white 270deg);
+    }
+
+    .trade-box{
+        background-color: white;
+
+        width: 80%;
+        border-radius: 20px;
+        padding: 20px 20px;
+        box-shadow: 0px 2px 4px grey;
+
+    }
+    .trade-amount-box{
+        display: flex;
+        flex-direction: column;
+        margin: 20px 0;
+        align-items: center;
+
+    }
+    .trade-amount-title{
+        font-size: 20px;
+        padding: 5px;
+    }
+    .trade-amount-input{
+        font-size: 24px;
+        width: 60%;
+        text-align: center;
+        border-radius: 5px;
+        border: 1px solid grey;
+    }
+    .trade-button-box{
+        display: flex;
+        justify-content: space-evenly;
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    .trade-button{
+        padding: 10px;
+        width: 30%;
+        border-radius: 5px;
+        color: white;
+        text-align: center;
+        cursor: pointer;
+        
+    }
+
+    .trade-buy-button{
+        background-color: #2ECD85;
+    }
+    .trade-sell-button{
+        background-color: #F6465D;
+    }
+
+
+
+    .current-trade-box-container{
+        display: none;
+        justify-content: center;
+        padding: 20px 0;
+        background-color: white;
+        background-image: conic-gradient(white 0deg ,white 90deg , #e9e9d6 90deg, #e9e9d6 270deg, white 270deg);
+    }
+
+    .current-trade-box{
+        background-color: rgb(243, 238, 238);
+
+        width: 80%;
+        border-radius: 20px;
+        padding: 20px 20px;
+        box-shadow: 0px 2px 4px grey;
+        
+
+    }
+
+    .ctrade-target-price-box-container{
+        display: flex;
+        justify-content: space-between;
+        
+    }
+
+    .ctrade-target-title{
+        font-size: 20px;
+        padding: 2px;
+
+    }
+
+    .ctrade-target-price{
+        background-color: white;
+        text-align: center;
+        padding: 5px;
+        border-radius: 10px;
+        font-size: 18px;
+    }
+
+    .ctrade-title-box{
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0 ;
+        padding: 0 10px;
+        font-size: 24px;
+
+        
+    }
+    .ctrade-detail-box-conatiner{
+        display: flex;
+        justify-content: center;
+    }
+    .ctrade-detail-box{
+        background-color: white;
+
+        
+        border-radius: 20px;
+        padding: 20px 20px;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .ctrade-detail1{
+        flex-basis: 50%;
+    }
+    .ctrade-detail2{
+        flex-basis: 100%;
+    }
+
+
+
+    .trade-result-box-container{
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+        background-color: #e9e9d6;
+    }
+    .trade-result-box{
+        background-color: white;
+
+        width: 80%;
+        border-radius: 20px;
+        padding: 20px 20px;
+        box-shadow: 0px 2px 4px grey;
+        min-height: 300px;
+    }
+    .trade-result-title{
+        font-size: 24px;
+    }
+    .trade-result{
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+    }
+    .result-box{
+        display: flex;
+        flex-direction: column;
+        font-size: 14px;
+    }
+
+
+    .referral-codes-box-container{
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+        background-color: #e9e9d6;
+    }
+    .referral-codes-box{
+        background-color: white;
+
+        width: 80%;
+        border-radius: 20px;
+        padding: 20px 20px;
+        box-shadow: 0px 2px 4px grey;
+        min-height: 300px;
+    }
+
+    .referral-codes-title{
+        font-size: 24px;
+        text-align: center;
+    }
+
+    .referral-code{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        min-height: 120px;
+        margin: 20px 0;
+    }
+    .referral-code > span {
+        flex-basis: 50%;
+        text-align: center;
+        font-size: 18px;
+    }
+
+
+
+
+
+
+    .footer-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin: 20px 0;
+        margin-left: 40px;
+        
+    }
+    .footer-social-box{
+        display: flex;
+        justify-content: space-evenly;
+    }
+    .footer-social-img{
+        height: 35px;
+    }
+    
+
+    .footer-link-box{
+        display: flex;
+        justify-content: space-around;
+        padding: 20px 0;
+    }
+    .footer-link{
+        margin: 15px 0;
+        font-weight: 500;
+    }
+
+
+</style>
+<body>
+<div class="app">
+    <nav class="navbar">
+        <img src="./logo.svg">
+    </nav>
+
+    <div class="welcome-box">
+        <div class="welcome-msg">
+            Welcome : User
+        </div>
+    </div>
+
+    <div class="wallet-box-container">
+        <div class="wallet-box">
+            <div class="wallet-balance">Balance: ₹ fetching</div>
+        </div>
+    </div>
+
+    <div class="chart-title">
+        MATIC/USDT Chart >                
+
+    </div>
+    <div class="chart-box">
+
+        <!-- TradingView Widget BEGIN -->
+        <div class="tradingview-widget-container tradingview-box">
+            <div id="tradingview_7c309 tradingview-box"></div>
+            <div style="display: none;" class="tradingview-widget-copyright"><a href="https://in.tradingview.com/"
+                    rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on
+                        TradingView</span></a></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+            <script type="text/javascript">
+                new TradingView.widget(
+                    {
+                        "autosize": true,
+                        "symbol": "BINANCE:MATICUSDT.P",
+                        "interval": "5",
+                        "timezone": "Asia/Kolkata",
+                        "theme": "light",
+                        "style": "2",
+                        "locale": "in",
+                        "enable_publishing": false,
+                        "hide_legend": true,
+                        "save_image": false,
+                        "hide_volume": true,
+                        "container_id": "tradingview_7c309"
+                    }
+                );
+            </script>
+        </div>
+        <!-- TradingView Widget END -->
+    </div>
+
+    <div class="trade-box-container">
+
+        <div class="trade-box">
+            <div class="trade-amount-box">
+                <div class="wallet-balance">Balance: ₹ fetching</div>
+
+                <div class="trade-amount-title">
+                    Enter trade amount
+                </div>
+                <input class="trade-amount-input" type="text">
+            </div>
+            <div class="trade-button-box">
+                <div class="trade-buy-button trade-button">
+                    Buy
+                </div>
+                <div class="trade-sell-button trade-button">
+                    Sell
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div class="current-trade-box-container">
+
+        <div class="current-trade-box">
+
+            <div class="ctrade-target-price-box-container">
+                <div class="ctrade-target-price-box">
+                    <div class="ctrade-target-title">Profit at Price</div>
+                    <div class="ctrade-target-price ctrade-profit-price">0.65756</div>
+                </div>
+                <div class="ctrade-target-price-box">
+                    <div class="ctrade-target-title">Loss at price</div>
+                    <div class="ctrade-target-price ctrade-loss-price">0.58756</div>
+                </div>
+            </div>
+            
+            <div class="ctrade-title-box">
+                <div>Trade Details</div>
+                <div class="ctrade-trade-side">BUY</div>
+            </div>
+
+            <div class="ctrade-detail-box-conatiner">
+                <div class="ctrade-detail-box">
+                    <!-- <div class="ctrade-detail1 ctrade-trade-side">Direction : Buy</div>
+                    <div class="ctrade-detail1 ctrdae-trade-symbol">Crypto : Matic</div> -->
+                    <div class="ctrade-detail1 ctrade-trade-time">Time : loading</div>
+                    <div class="ctrade-detail1 ctrade-trade-price">Trade Price : loading</div>
+                    <div class="ctrade-detail1 ctrade-trade-amount">Amount : loading</div>
+
+
+                </div>
+
+
+            </div>
+            
+        </div>
+    </div>
+
+
+
+
+
+    <div class="trade-result-box-container">
+        <div class="trade-result-box">
+            <div class="trade-result-title">
+                Previous Trades Result:
+            </div>
+            <div class="trade-result">
+                <div class="result-box result-date-box">
+                    <span class="bold">Date</span>
+                </div>
+                <div class="result-box result-direction-box">
+                    <span class="bold">Direction</span>
+                </div>
+                <div class="result-box result-result-box">
+                    <span class="bold">Result</span>
+                </div>
+                <div class="result-box result-amount-box">
+                    <span class="bold">Amount</span>
+                </div>
+                <div class="result-box result-return-box">
+                    <span class="bold">Return</span>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="referral-codes-box-container">
+        <div class="referral-codes-box">
+            <div class="referral-codes-title">
+                Referral codes
+            </div>
+            <div class="referral-code">
+                <span>1. Empty</span>
+                <span>2. Empty</span>
+                <span>3. Empty</span>
+                <span>4. Empty</span>
+            </div>
+            <div class="refferal-codes-instruction">
+                You can unlock every referrel after 2 completed
+                trades . You can have maximum 4 referrel at a time .
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <div class="footer">
+        <div class="footer-title">Follow Us</div>
+        <div class="footer-social-box">
+            <div class="footer-social-img">
+                <img src="/facebook.png" width="100%" height="100%">
+            </div>
+            <div class="footer-social-img">
+                <img src="/twitter.png" width="100%" height="100%">
+            </div>
+            <div class="footer-social-img">
+                <img src="/linkedin.png" width="100%" height="100%">
+            </div>
+            <div class="footer-social-img">
+                <img src="/facebook.png" width="100%" height="100%">
+            </div>
+            <div class="footer-social-img">
+                <img src="/facebook.png" width="100%" height="100%">
+            </div>
+        </div>
+
+        <div class="footer-link-box">
+            <div>
+                <div class="footer-link">Products</div>
+                <div class="footer-link">Trades</div>
+                <div class="footer-link">A.I.</div>
+                <div class="footer-link">Watches</div>
+            </div>
+
+            <div>
+                <div class="footer-link">Wallet</div>
+                <div class="footer-link">Blockchain</div>
+                <div class="footer-link">Protocol</div>
+                <div class="footer-link">Sidechain</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // Function to hide or show elements
+    function hideTradeBox(){
+        document.querySelector('.trade-box-container').style.display = "none"
+    }
+    function showTradeBox(){
+        document.querySelector('.trade-box-container').style.display = "flex"
+
+    }
+    function hideCurrentTradeBox(){
+        document.querySelector('.current-trade-box-container').style.display = "none"
+    }
+    function showCurrentTradeBox(){
+        document.querySelector('.current-trade-box-container').style.display = "flex"
+
+    }
+
+
+    // // trade functions 
+
+
+    function placeNewTrade(side , amount) {
+
+
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/user/new-trade");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        let tradeDetails = {
+            side : side ,
+            amount : amount
+        }
+
+        let popupConfirm = window.confirm("Confirm trade Details \n Amount : ₹"+amount +"\n Direction : "+side)
+        if(!popupConfirm){
+            return
+        }
+
+
+        xhttp.send(JSON.stringify(tradeDetails))
+
+        xhttp.onload = function () {
+
+            let response = JSON.parse(this.responseText)
+
+            alert(response.msg)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+            if (response.status == "passed") {
+                hideTradeBox()
+                getUserWallet()
+                setTimeout(getCurrentTrade , 2000)
+            }
+
+        }
+    }
+
+
+    function getCurrentTrade() {
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/trade");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+            if (!response.msg.status) {
+                return
+            }
+
+            let trade = response.msg
+            if (trade.status = "FILLED") {
+
+                document.querySelector('.ctrade-trade-side').innerText = trade.side
+                document.querySelector('.ctrade-trade-amount').innerText = "Amount : ₹ " + trade.amountInr
+                document.querySelector('.ctrade-loss-price').innerText = trade.stopLossPrice
+                document.querySelector('.ctrade-profit-price').innerText = trade.takeProfitPrice
+                document.querySelector('.ctrade-trade-price').innerText = "Trade Price "+ trade.avgPrice
+                document.querySelector('.ctrade-trade-time').innerText = "Time :  "+ new Date(trade.orderTime).toLocaleString()
+
+
+
+                hideTradeBox()
+                showCurrentTradeBox()
+
+            } else {
+                document.querySelector('.current-trade-box-container').style.display = "flex"
+                document.querySelector('.current-trade-box-container').innerHTML = "Something went wrong with your trade contact our support or email us"
+
+
+            }
+
+        }
+
+    }
+
+
+
+    function getPreviousTradeResult() {
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/trade-result");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+
+            let trades = response.msg
+            console.log(trades)
+
+            trades.forEach(trade => {
+                //document.querySelector('.trade-result').innerText += "\n" + trade.side + " of ₹ " + trade.amountInr + " Result : " + trade.progress
+                
+                let spanDate = document.createElement('span')
+                let spanDirection = document.createElement('span')
+                let spanResult = document.createElement('span')
+                let spanAmount = document.createElement('span')
+                spanDate.innerText = new Date(trade.orderTime).toLocaleDateString()
+                spanDirection.innerText =trade.side
+                spanResult.innerText =trade.progress
+                spanAmount.innerText =trade.amountInr
+                document.querySelector('.result-date-box').appendChild(spanDate)
+                document.querySelector('.result-direction-box').appendChild(spanDirection)
+                document.querySelector('.result-result-box').appendChild(spanResult) 
+                document.querySelector('.result-amount-box').appendChild(spanAmount)
+
+            });
+
+
+        }
+
+    }
+
+
+
+
+
+
+    function getReferralCodes() {
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/referral-codes");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+
+            let referralCodes = response.msg
+            console.log(referralCodes)
+
+            let codeBoxes = document.querySelectorAll('.referral-code > span')
+            
+            for (let i = 0; i < referralCodes.length; i++) {
+                codeBoxes[i].innerText = referralCodes[i]
+                
+            }
+
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+    // // Event listeners
+
+    document.querySelector('.trade-buy-button').addEventListener('click', () => {
+        let amount = document.querySelector('.trade-amount-input').value
+        placeNewTrade("BUY" , Number(amount))
+
+    })
+
+    document.querySelector('.trade-sell-button').addEventListener('click', () => {
+        let amount = document.querySelector('.trade-amount-input').value
+        placeNewTrade("SELL" , Number(amount))
+    })
+
+    // // Popup close button
+
+    // document.querySelector('.popup-close-button').addEventListener('click', () => {
+    //     closePopup()
+    // })
+
+    // // popup trade button 
+    // document.querySelector('.popup-submit-button').addEventListener('click', () => {
+    //     placeNewTrade()
+    // })
+
+
+    // // get data from api
+
+
+    function getUserData() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/info");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        xhttp.send()
+
+
+        xhttp.onload = function () {
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+            document.querySelector('.welcome-msg').innerText = "Welcome: " + response.msg.name
+            document.querySelectorAll('.wallet-balance')[0].innerText = "Balance: ₹ " + response.msg.wallet.freeBalance
+            document.querySelectorAll('.wallet-balance')[1].innerText = "Balance: ₹ " + response.msg.wallet.freeBalance
+
+
+
+        }
+    }
+
+
+    function getUserWallet() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/wallet");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        xhttp.send()
+
+
+        xhttp.onload = function () {
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+            document.querySelectorAll('.wallet-balance')[0].innerText = "Balance: ₹ " + response.msg.freeBalance
+            document.querySelectorAll('.wallet-balance')[1].innerText = "Balance: ₹ " + response.msg.freeBalance
+
+
+
+        }
+    }
+
+
+    // function execute at load
+    getUserData()
+    
+    getCurrentTrade()
+    getPreviousTradeResult()
+    getReferralCodes()
+    // getTrade()
+    // getTradeResult()
+
+</script 
+
+</body>
+</html>

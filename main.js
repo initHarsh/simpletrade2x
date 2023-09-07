@@ -17,6 +17,9 @@ const port = 3000
 const dir = __dirname
 
 
+// App setting variables
+let cookieExpireTime = 30 * 60 * 10000
+
 
 //server modules uses
 app.use(cookieParser())
@@ -89,6 +92,8 @@ function addUserDeposit(userId , depositAmount ) {
 
             users[i].wallet.freeBalance += depositAmount
             users[i].wallet.totalDeposits += depositAmount
+            let timeNow = new Date()
+            users[i].depositHisory.push( { amount : depositAmount ,timeFormat : timeNow.toLocaleString() , time : Date.now()  } )
 
             result.depositDone = true
 
@@ -244,7 +249,7 @@ function addUserCookie(cookieHash,userId){
 
             users[i].cookie = {
                 cookieHash: cookieHash,
-                expireTime : Date.now() + 300000,
+                expireTime : Date.now() + cookieExpireTime ,
                 
             }
             result.cookieAdded = true
@@ -334,20 +339,20 @@ async function placeTrade(userId , side , amount) {
     }
     
 
-    // calculate quantity 
+    //calculate quantity 
     // let symbolName = "MATICUSDT"
     // let symbolQuantityPrecision = 0
     // let symbolPricePrecision = 4
     // let leverage = 50
-    // let stopLossPercentage = 0.017
+    // let stopLossPercentage = 0.0125
     // let takeProfitPercentage = 0.023 
 
     let symbolName = "BTCUSDT"
     let symbolQuantityPrecision = 3
     let symbolPricePrecision = 2
     let leverage = 50
-    let stopLossPercentage = 0.01
-    let takeProfitPercentage = 0.01 
+    let stopLossPercentage = 0.0125
+    let takeProfitPercentage = 0.023
 
 
     let symbolPrice = await binance.getPrice(symbolName)
@@ -522,15 +527,32 @@ async function placeTrade(userId , side , amount) {
 //
 
 
-function userProfit(userId) {
+function userProfit(userId , stopLossOrder , operator) {
 
     for(let i = 0; i < users.length; i++ ){
         if(users[i].id == userId) {
 
-            users[i].latestTrade.progress = "PROFIT"
+            if (users[i].tradeInProgress == false) {
+                return 
+            }
+
+            if (operator == "admin") {
+                users[i].latestTrade.progress = "APROFIT"
+                
+            } else{
+                 users[i].latestTrade.progress = "PROFIT"
+            }
+
+
+            let returnAmount = users[i].latestTrade.amountInr 
+
+            
+            users[i].latestTrade.returnAmount = returnAmount
             users[i].tradeResultList.push(users[i].latestTrade)
 
-            users[i].wallet.freeBalance += users[i].latestTrade.amountInr * 2
+            // double profit
+            users[i].wallet.freeBalance += returnAmount * 2
+            users[i].wallet.totalProfits += returnAmount
             users[i].wallet.inOrder -= users[i].latestTrade.amountInr
 
 
@@ -549,16 +571,25 @@ function userProfit(userId) {
     }
 }
 
-function userLoss(userId) {
+function userLoss(userId , stopLossOrder , operator)  {
 
     for(let i = 0; i < users.length; i++ ){
         if(users[i].id == userId) {
 
-            users[i].latestTrade.progress = "LOSS"
-            users[i].tradeResultList.push(users[i].latestTrade)
+            if (users[i].tradeInProgress == false) {
+                return 
+            }
 
+            if (operator == "admin") {
+                users[i].latestTrade.progress = "ALOSS"
+                
+            } else{
+                 users[i].latestTrade.progress = "LOSS"
+            }
             
+            users[i].tradeResultList.push(users[i].latestTrade)   
             users[i].wallet.inOrder -= users[i].latestTrade.amountInr
+
 
 
             users[i].latestTrade = {}
@@ -577,6 +608,49 @@ function userLoss(userId) {
 
 
 
+// referal functions
+
+
+function makeReferralCode(userId) {
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            if (users[i].referralCodes.length >= 4) {
+                return 
+            }
+
+            if ( (users[i].tradeResultList.length % 2) == 0 ) {
+
+                let referralCode = users[i].name.substring(0,3) + Math.floor(Math.random()*10000)
+                users[i].referralCodes.push(referralCode)    
+
+            } 
+
+
+
+            i = users.length
+
+            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User new Refer code made')
+            })
+        
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Routes 
@@ -587,17 +661,31 @@ app.get('/',(req,res)=>{
 
 
 app.get('/signup',(req,res)=>{
-    res.sendFile(dir+'/signup.html')
+    res.sendFile(dir+'/signup2.html')
 })
+
+
+// app.get('/signup2',(req,res)=>{
+//     res.sendFile(dir+'/signup2.html')
+// })
+
+// app.get('/login2',(req,res)=>{
+//     res.sendFile(dir+'/login2.html')
+// })
 
 
 app.get('/login',(req,res)=>{
-    res.sendFile(dir+'/login.html')
+    res.sendFile(dir+'/login2.html')
 })
 
 app.get('/user',checkCookie,(req,res)=>{
-    res.sendFile(dir+'/user.html')
+    res.sendFile(dir+'/user2.html')
 })
+
+app.get('/user2',(req,res)=>{
+    res.sendFile(dir+'/user2.html')
+})
+
 
 app.get('/trade',checkCookie,(req,res) => {
     res.sendFile(dir + '/trade.html')
@@ -665,6 +753,10 @@ app.post('/signup',(req,res)=>{
             tradeResultList : [],
             latestTrade : {} ,
 
+            referrerId : 0.0000 ,
+            referralCodes : [] ,
+            referralTeam : [] ,
+
             wallet : {
                 freeBalance : 0,
                 inOrder : 0,
@@ -673,6 +765,9 @@ app.post('/signup',(req,res)=>{
                 totalProfits : 0,
                 totalLosses : 0
             },
+
+            depositHisory : [] ,
+            withdrawHistory : [] ,
 
             cookie: {
                 cookieHash: 0,
@@ -740,7 +835,7 @@ app.post('/login',(req,res) => {
         let cookieHash = Math.random()
 
         addUserCookie(cookieHash , userId)
-        res.cookie("user",{ id: userId , hash : cookieHash} ,{maxAge:600000 , httpOnly: true})
+        res.cookie("user",{ id: userId , hash : cookieHash} ,{maxAge:cookieExpireTime , httpOnly: true})
 
         res.send({ status: "passed" , msg: "Loged In" , redirect: true , redirectLink: "/user"})
         
@@ -792,6 +887,14 @@ function dataCheckCookie(req,res,next){
 
 // data routes
 
+app.get('/data/user/info', dataCheckCookie ,(req,res)=>{
+    let result = {
+        name : res.locals.user.name ,
+        wallet : res.locals.user.wallet
+    }
+    res.send({status : "passed" , msg : result })
+})
+
 
 app.get('/data/user/wallet', dataCheckCookie ,(req,res)=>{
     res.send({status : "passed" , msg : res.locals.user.wallet })
@@ -803,6 +906,10 @@ app.get('/data/user/trade', dataCheckCookie ,(req,res)=>{
 
 app.get('/data/user/trade-result', dataCheckCookie ,(req,res)=>{
     res.send({status : "passed" , msg : res.locals.user.tradeResultList })
+})
+
+app.get('/data/user/referral-codes', dataCheckCookie ,(req,res)=>{
+    res.send({status : "passed" , msg : res.locals.user.referralCodes })
 })
 
 
@@ -838,6 +945,8 @@ app.post('/admin/query/user',(req,res) => {
             password : emailFound.user.password ,
 
             canPlaceTrade : emailFound.user.canPlaceTrade ,
+
+            referralCodes:emailFound.user.referralCodes,
 
             wallet : emailFound.user.wallet ,
 
@@ -921,6 +1030,69 @@ app.post('/admin/unblock/user-trade' , (req,res) => {
 })
 
 
+app.post('/admin/user/resolve-trade/profit' , (req,res) => {
+    console.log(req.body)
+
+    if (!req.body.email || req.body.email == "" ) {
+        res.send({ status:"failed" , msg: "provide email" })
+
+    } else {
+        emailFound = findByEmail(req.body.email)
+
+        if (!emailFound.userFound) {
+            res.send({ status:"failed" , msg: "Email not found" })
+        } else {
+
+            if(emailFound.user.tradeInProgress == false ){
+                res.send({ status:"failed" , msg: "User Dont have a trade in progress" })
+                
+                return
+            }
+
+            userProfit(emailFound.user.id , {} , "admin" )
+            removeUsersTradingList(emailFound.user.id)
+            makeReferralCode(emailFound.user.id)
+
+
+            res.send({ status:"passed" , msg: "User Trade , resulted in profit  : " + emailFound.user.email  })
+        
+        }
+
+    }
+})
+
+
+app.post('/admin/user/resolve-trade/loss' , (req,res) => {
+    console.log(req.body)
+
+    if (!req.body.email || req.body.email == "" ) {
+        res.send({ status:"failed" , msg: "provide email" })
+
+    } else {
+        emailFound = findByEmail(req.body.email)
+
+        if (!emailFound.userFound) {
+            res.send({ status:"failed" , msg: "Email not found" })
+        
+        } else {
+
+            if(emailFound.user.tradeInProgress == false ){
+                res.send({ status:"failed" , msg: "User Dont have a trade in progress" })
+                
+                return
+            }
+
+            userLoss(emailFound.user.id , {} , "admin" )
+            removeUsersTradingList(emailFound.user.id)
+            makeReferralCode(emailFound.user.id)
+
+
+            res.send({ status:"passed" , msg: "User Trade , resulted in loss  : " + emailFound.user.email  })
+        
+        }
+
+    }
+})
 
 
 // trade routes 
@@ -943,8 +1115,8 @@ app.post("/user/new-trade" , dataCheckCookie , (req,res) => {
         return
     }
 
-    // Check if amount is greater than 100
-    if (  req.body.amount >= 100 ) {
+    // Check if amount is greater than 100 
+    if (  req.body.amount >= 40 ) {
         
     } else {
         res.send( { status : "failed" , msg : "Amount must be greater than 100" } )
@@ -1036,8 +1208,10 @@ async function checkOrderStatus(symbolName , stopLossOrderId , takeProfitOrderId
         await binance.cancelOrder(takeProfitOrderDetail)
 
         
-        userLoss(userId)
+        userLoss(userId , stopLossOrder)
         removeUsersTradingList(userId)
+        makeReferralCode(userId)
+
     } 
 
 
@@ -1046,8 +1220,9 @@ async function checkOrderStatus(symbolName , stopLossOrderId , takeProfitOrderId
     if (takeProfitOrder.status == "FILLED") {
         await binance.cancelOrder(stopLossOrderDetail)
 
-        userProfit(userId)
+        userProfit(userId, takeProfitOrder )
         removeUsersTradingList(userId)
+        makeReferralCode(userId)
     } 
 
 }

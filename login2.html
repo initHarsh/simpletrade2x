@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+
+    body{
+        background-color: #fbfafc;
+    }
+
+    .popup-container{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup-box{
+        margin: 50px 0;
+        width: 90%;
+        max-width: 450px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px 0 rgb(99, 99, 99);
+    }
+    .popup-header{
+        
+
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        display: flex;
+        padding: 10px 20px;
+        justify-content: space-between;
+    }
+
+    .popup-logo{
+        height: 30px;
+        width: 30px;
+    }
+
+    .popup-close-button{
+        height: 20px;
+        width: 20px;
+    }
+
+
+    .popup-content{
+        display: flex;
+        flex-direction: column;
+        
+        padding: 25px;
+        padding-top: 0;
+    }
+    .popup-title{
+        text-align: center;
+        font-size: 20px;
+        font-weight: 510;
+        font-family: Rubik , sans-serif;
+    }
+    .popup-subtitle{
+        text-align: center;
+        font-family: Roboto , sans-serif;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .input-label{
+        color: #363636;
+        font-weight: 500;
+        font-family: Roboto , sans-serif;
+        margin-bottom: 5px;
+
+    }
+    .popup-input{
+        border: 1px solid #e0e0e0;
+        background-color: #fbfafc;
+        border-radius: 10px;
+        font-size: 18px;
+        padding: 7px 10px;
+        color: #363636;
+        margin-bottom: 10px;
+    }
+    .popup-submit{
+        background-color: #00c386;
+        color: white;
+        font-family: Roboto , sans-serif;
+        font-weight: 500;
+        text-align: center;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    .popup-divider{
+        background-color: #e6e6e6;
+        height: 3px;
+        width: 100%;
+        margin : 20px 0;
+    }
+
+    .popup-link-box{
+        text-align: center;
+        color: #363636;
+        font-weight: 500;
+        font-family: Roboto , sans-serif;
+    }
+
+    .popup-link{
+
+    }
+
+
+</style>
+
+<body>
+
+    <div class="popup-container">
+        <div class="popup-box">
+            <div class="popup-header">
+
+                <!-- <div class="popup-logo">
+                    <img width="100%" height="100%" src="./cryptocurrency.png">
+                </div>
+
+                 <div class="popup-close-button">
+                    <svg class="svg-inline--fa fa-times fa-w-11" aria-hidden="true" focusable="false" data-prefix="fa" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" data-fa-i2svg=""><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
+                 </di
+                 v>
+                  -->
+
+
+            </div>
+
+            <div class="popup-content">
+                <div class="popup-title">Log In</div>
+                <div class="popup-subtitle">Log in to your account.</div>
+
+                <div class="input-label">Email</div>
+                <input type="text" class="popup-input input-email">
+
+                <div class="input-label">Password</div>
+                <input type="text" class="popup-input input-password">
+
+                <div class="popup-submit">Log In</div>
+
+                <div class="popup-divider"></div>
+
+                <div class="popup-link-box">
+                    Don't have a Account? <a class="popup-link" href="/signup">Sign Up</a>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    
+<script>
+
+
+
+    // functions
+
+    function sendForm() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/login");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        let formData = getFormData()
+        xhttp.send(JSON.stringify(formData))
+
+
+        xhttp.onload = function () {
+            let response = JSON.parse(this.responseText)
+            console.log(response)
+
+            alert(response.msg)
+            
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+        }
+    }
+
+
+    function getFormData() {
+        let formData = {}
+
+        formData.email = document.querySelector('.input-email').value
+        formData.password = document.querySelector('.input-password').value
+
+        return formData
+    }
+
+
+
+    // Event listeners
+    // Submit button
+
+    document.querySelector('.popup-submit').addEventListener('click', () => {
+        sendForm()
+    })
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
