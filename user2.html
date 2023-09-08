@@ -100,7 +100,7 @@
         justify-content: center;
         padding: 20px 0;
         background-color: white;
-        background-image: conic-gradient(white 0deg ,white 90deg , #e9e9d6 90deg, #e9e9d6 270deg, white 270deg);
+        /* background-image: conic-gradient(white 0deg ,white 90deg , #e9e9d6 90deg, #e9e9d6 270deg, white 270deg); */
     }
 
     .trade-box{
@@ -291,6 +291,34 @@
         font-size: 18px;
     }
 
+
+
+    .referral-team-box-container{
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+        background-color: #F6FCFF;
+    }
+    .referral-team-box{
+        background-color: white;
+
+        width: 80%;
+        border-radius: 20px;
+        padding: 20px 20px;
+        box-shadow: 0px 2px 4px grey;
+        min-height: 300px;
+    }
+
+    .referral-team-title{
+        font-size: 24px;
+        text-align: center;
+    }
+
+    .referral-team{
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+    }
 
 
 
@@ -492,6 +520,28 @@
         </div>
     </div>
 
+    <div class="referral-team-box-container">
+        <div class="referral-team-box">
+            <div class="referral-team-title">
+                Referral Team
+            </div>
+            <div class="referral-team">
+                <div class="result-box team-name-box">
+                    <span class="bold">Name</span>
+                </div>
+                <div class="result-box team-today-income-box">
+                    <span class="bold">Today Income</span>
+                </div>
+                <div class="result-box team-total-income-box">
+                    <span class="bold">Total Income</span>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
 
 
     <div class="footer">
@@ -676,14 +726,20 @@
                 let spanDirection = document.createElement('span')
                 let spanResult = document.createElement('span')
                 let spanAmount = document.createElement('span')
+                let spanReturn = document.createElement('span')
+
                 spanDate.innerText = new Date(trade.orderTime).toLocaleDateString()
                 spanDirection.innerText =trade.side
                 spanResult.innerText =trade.progress
                 spanAmount.innerText =trade.amountInr
+                spanReturn.innerText =trade.returnAmount
+
                 document.querySelector('.result-date-box').appendChild(spanDate)
                 document.querySelector('.result-direction-box').appendChild(spanDirection)
                 document.querySelector('.result-result-box').appendChild(spanResult) 
                 document.querySelector('.result-amount-box').appendChild(spanAmount)
+                document.querySelector('.result-return-box').appendChild(spanReturn)
+
 
             });
 
@@ -734,6 +790,55 @@
 
 
 
+
+    function getReferralTeam() {
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/referral-team");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+
+            let referralTeam = response.msg
+            console.log(referralTeam)
+
+            referralTeam.forEach(user => {
+                //document.querySelector('.trade-result').innerText += "\n" + trade.side + " of ₹ " + trade.amountInr + " Result : " + trade.progress
+
+                let spanName = document.createElement('span')
+                let spanTodayIncome = document.createElement('span')
+                let spanTotalIncome = document.createElement('span')
+       
+
+                spanName.innerText = user.name
+                spanTodayIncome.innerText = "₹"+ 0
+                spanTotalIncome.innerText = "₹"+ user.totalEarn
+       
+
+                document.querySelector('.team-name-box').appendChild(spanName)
+                document.querySelector('.team-today-income-box').appendChild(spanTodayIncome)
+                document.querySelector('.team-total-income-box').appendChild(spanTotalIncome)
+             
+
+
+            });
+
+
+        }
+
+    }
 
 
 
@@ -823,6 +928,7 @@
     getCurrentTrade()
     getPreviousTradeResult()
     getReferralCodes()
+    getReferralTeam()
     // getTrade()
     // getTradeResult()
 

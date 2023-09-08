@@ -62,7 +62,7 @@ fs.readFile('usersTrading.json','utf-8',(err,data)=>{
 
 
 function updateUsersTradingList(){
-    fs.writeFile('usersTrading.json',JSON.stringify(usersTrading),(err)=>{
+    fs.writeFileSync('usersTrading.json',JSON.stringify(usersTrading),(err)=>{
         if (err) throw err
         console.log('Updated Users Trading File, Total Users trading now : '+usersTrading.length)
     })
@@ -71,7 +71,7 @@ function updateUsersTradingList(){
 function addUser(user){
     users.push(user)
 
-    fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+    fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
         if (err) throw err
         console.log('New user Added')
         console.log(" Total Users : "+ users.length)
@@ -98,9 +98,9 @@ function addUserDeposit(userId , depositAmount ) {
             result.depositDone = true
 
             // end loop
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User deposited amount : '+ depositAmount)
             })
@@ -125,7 +125,7 @@ function findByEmail(email){
             result.userFound = true
             result.user = users[i]
             // stop loop
-            i = users.length
+             
         }
     }
     return result
@@ -144,7 +144,7 @@ function findByMobile(mobile){
             result.userFound = true
             result.user = users[i]
             // stop loop
-            i = users.length
+             
         }
     }
     return result
@@ -162,7 +162,7 @@ function findById(id){
             result.userFound = true
             result.user = users[i]
             // stop loop
-            i = users.length
+             
         }
     }
     return result
@@ -179,9 +179,9 @@ function blockUserTrade(userId) {
             users[i].canPlaceTrade = false
 
             // end loop
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User trade blocked ')
             })
@@ -200,9 +200,9 @@ function unblockUserTrade(userId) {
             users[i].canPlaceTrade = true
 
             // end loop
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User trade unblocked ')
             })
@@ -254,9 +254,9 @@ function addUserCookie(cookieHash,userId){
             }
             result.cookieAdded = true
 
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User Cookie Updated')
             })
@@ -328,9 +328,9 @@ async function placeTrade(userId , side , amount) {
             users[i].wallet.inOrder += amount
 
             // end loop
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User trade Initiated')
             })
@@ -475,6 +475,7 @@ async function placeTrade(userId , side , amount) {
 
         tradeStatus.symbolQuantity = symbolQuantity
         tradeStatus.side = side
+        tradeStatus.cumQuote = queryMainOrder.cumQuote
         tradeStatus.avgPrice = queryMainOrder.avgPrice
         tradeStatus.stopLossPrice = stopLossOrder.stopPrice
         tradeStatus.takeProfitPrice = takeProfitOrder.stopPrice 
@@ -502,9 +503,9 @@ async function placeTrade(userId , side , amount) {
             users[i].latestTrade = tradeStatus
 
             // end loop
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User trade placed')
             })
@@ -527,7 +528,7 @@ async function placeTrade(userId , side , amount) {
 //
 
 
-function userProfit(userId , stopLossOrder , operator) {
+function userProfit(userId , takeProfitOrder , operator) {
 
     for(let i = 0; i < users.length; i++ ){
         if(users[i].id == userId) {
@@ -542,27 +543,44 @@ function userProfit(userId , stopLossOrder , operator) {
             } else{
                  users[i].latestTrade.progress = "PROFIT"
             }
+            let quantity = Number(users[i].latestTrade.symbolQuantity)
+            let costOfTrade = quantity *  Number(users[i].latestTrade.avgPrice) 
+            let profitOfTrade = quantity * Number(takeProfitOrder.avgPrice) 
+            let profitAmount = profitOfTrade - costOfTrade
+            let profitAmountInr = profitAmount * 90  
 
+            if (users[i].latestTrade.side =="SELL") {
+                profitAmountInr = profitAmountInr * -1
+            }
 
-            let returnAmount = users[i].latestTrade.amountInr 
+            console.log(users[i].latestTrade.amountInr + " for Trade profit is "+ profitAmountInr )
+            
+            if (profitAmountInr < users[i].latestTrade.amountInr) {
+                return
+            }
+
+            let returnAmount = Math.floor( users[i].latestTrade.amountInr * 0.95 )
 
             
             users[i].latestTrade.returnAmount = returnAmount
             users[i].tradeResultList.push(users[i].latestTrade)
 
             // double profit
-            users[i].wallet.freeBalance += returnAmount * 2
+            users[i].wallet.freeBalance += users[i].latestTrade.amountInr + returnAmount 
             users[i].wallet.totalProfits += returnAmount
             users[i].wallet.inOrder -= users[i].latestTrade.amountInr
 
+            // referral income
+            let referralAmount = Math.floor( users[i].latestTrade.amountInr *  0.05 )
 
+            sendToReferrer(users[i].referrerId , users[i].codeUsed , referralAmount  )
 
             users[i].latestTrade = {}
             users[i].tradeInProgress = false
 
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User profit')
             })
@@ -586,18 +604,43 @@ function userLoss(userId , stopLossOrder , operator)  {
             } else{
                  users[i].latestTrade.progress = "LOSS"
             }
-            
-            users[i].tradeResultList.push(users[i].latestTrade)   
-            users[i].wallet.inOrder -= users[i].latestTrade.amountInr
 
+            let quantity = Number(users[i].latestTrade.symbolQuantity)
+            let costOfTrade = quantity *  Number(users[i].latestTrade.avgPrice) 
+            let lossOfTrade = quantity * Number(stopLossOrder.avgPrice) 
+            let lossAmount = lossOfTrade - costOfTrade
+            let lossAmountInr = lossAmount * 90  
+
+            if (users[i].latestTrade.side == "SELL") {
+                lossAmountInr = lossAmountInr * -1
+            }
+
+            let returnAmount = Math.floor(lossAmountInr - ( users[i].latestTrade.amountInr *  0.20))
+
+
+
+            users[i].latestTrade.returnAmount = returnAmount
+            
+            // what is left 
+            users[i].wallet.totalLosses += returnAmount 
+            users[i].wallet.inOrder -= users[i].latestTrade.amountInr
+            users[i].wallet.freeBalance += users[i].latestTrade.amountInr + returnAmount
+
+            users[i].tradeResultList.push(users[i].latestTrade)   
+
+            // referral income
+            let referralAmount = Math.floor( users[i].latestTrade.amountInr *  0.05 )
+
+            sendToReferrer(users[i].referrerId , users[i].codeUsed , referralAmount  )
 
 
             users[i].latestTrade = {}
             users[i].tradeInProgress = false
 
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User Loss')
             })
@@ -608,7 +651,7 @@ function userLoss(userId , stopLossOrder , operator)  {
 
 
 
-// referal functions
+// referral functions
 
 
 function makeReferralCode(userId) {
@@ -629,9 +672,9 @@ function makeReferralCode(userId) {
 
 
 
-            i = users.length
+             
 
-            fs.writeFile('users.json',JSON.stringify(users),(err)=>{
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User new Refer code made')
             })
@@ -640,9 +683,99 @@ function makeReferralCode(userId) {
     }
 }
 
+function findByReferralCode(code){
+
+    let result = {
+        userFound : false
+     }
+
+    for(let i = 0; i < users.length; i++ ){
+        console.log()
+        for (let j = 0; j <  users[i].referralCodes.length; j++) {
+                          
+            if ( users[i].referralCodes[j] == code ) {
+                
+                result.userFound = true
+                result.user = users[i]
+                // stop loop 
+                
+                 
+            }
+
+            
+        }
+    }
+
+    return result
+}
+
+function removeReferralCode(userId , code, name , id ){
+    for(let i = 0; i < users.length; i++ ){
+        
+        if (users[i].id == userId) {
+            // stop loop
+             
+
+            for (let j = 0; j < users[i].referralCodes.length; j++) {
+            
+                if ( users[i].referralCodes[j] == code ) {
+                    
+                    users[i].referralCodes.splice(j,1)
+                    
+                    users[i].referralTeam.push({
+                        time : Date.now() ,
+                        code : code ,
+                        name : name ,
+                        id : id  ,
+                        totalEarn : 0 ,
+                        earnList : [] 
+                    })
+                    
+                }
+                
+            }
+
+        }
+
+    }
 
 
 
+}
+
+
+function sendToReferrer(userId , code ,  amount ){
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            for (let j = 0; j < users[i].referralTeam.length ; j++ ) {
+                if (users[i].referralTeam[j].code == code ) {
+                    
+                    users[i].referralTeam[j].totalEarn += amount
+                    users[i].referralTeam[j].earnList.push({
+                        amount : amount ,
+                        time : Date.now() 
+                    })
+
+                    users[i].wallet.totalReferral += amount 
+                    users[i].wallet.freeBalance += amount
+
+                }
+
+            }
+
+
+             
+
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User refer income deposited')
+            })
+        
+        }
+    }
+}
 
 
 
@@ -714,7 +847,11 @@ app.post('/signup',(req,res)=>{
     }else if (req.body.password == "" || req.body.password.length < 4) {
         errors += "Password can't be empty and must be 4 character long"
 
+    }else if (req.body.referralCode == "" || req.body.referralCode.length < 4) {
+        errors += "Referral code can't be empty and must be 4 character long"
+
     }
+    
     
     // check if email or mobile already exist 
     if (errors == "" ) {
@@ -732,15 +869,32 @@ app.post('/signup',(req,res)=>{
     }
 
 
+
+    // check if referral code is valid
+    let referralFound = findByReferralCode(req.body.referralCode)
+
+    if(req.body.referralCode == "admin" ){
+        referralFound = { 
+            user : {
+                id : "admin" 
+            } 
+        }
+
+    } else if (referralFound.userFound == false) {
+        errors += "Invalid referral code"
+    }
+    
+
     
     // response
     if (!errors == "" ) {
         res.send( { status: "failed" , msg: errors} )
         console.log(errors)
     } else {
-
+        let id = Math.random()
+        
         let user = {
-            id : Math.random(),
+            id : id ,
 
             name : req.body.name,
             email : req.body.email,
@@ -753,7 +907,8 @@ app.post('/signup',(req,res)=>{
             tradeResultList : [],
             latestTrade : {} ,
 
-            referrerId : 0.0000 ,
+            referrerId : referralFound.user.id ,
+            codeUsed : req.body.referralCode , 
             referralCodes : [] ,
             referralTeam : [] ,
 
@@ -763,7 +918,8 @@ app.post('/signup',(req,res)=>{
                 totalDeposits : 0,
                 totalWitdraws : 0,
                 totalProfits : 0,
-                totalLosses : 0
+                totalLosses : 0 ,
+                totalReferral : 0
             },
 
             depositHisory : [] ,
@@ -780,6 +936,7 @@ app.post('/signup',(req,res)=>{
         }
 
         addUser(user)
+        removeReferralCode( referralFound.user.id , req.body.referralCode , req.body.name , id)
 
         res.send( { status: "passed" , msg: "Registered" , redirect: true , redirectLink: "/login"} )
     }
@@ -912,6 +1069,10 @@ app.get('/data/user/referral-codes', dataCheckCookie ,(req,res)=>{
     res.send({status : "passed" , msg : res.locals.user.referralCodes })
 })
 
+app.get('/data/user/referral-team', dataCheckCookie ,(req,res)=>{
+    res.send({status : "passed" , msg : res.locals.user.referralTeam })
+})
+
 
 
 
@@ -1033,7 +1194,7 @@ app.post('/admin/unblock/user-trade' , (req,res) => {
 app.post('/admin/user/resolve-trade/profit' , (req,res) => {
     console.log(req.body)
 
-    if (!req.body.email || req.body.email == "" ) {
+    if (!req.body.email || req.body.email == "" || !req.body.price) {
         res.send({ status:"failed" , msg: "provide email" })
 
     } else {
@@ -1049,7 +1210,7 @@ app.post('/admin/user/resolve-trade/profit' , (req,res) => {
                 return
             }
 
-            userProfit(emailFound.user.id , {} , "admin" )
+            userProfit(emailFound.user.id , {avgPrice:req.body.price} , "admin" )
             removeUsersTradingList(emailFound.user.id)
             makeReferralCode(emailFound.user.id)
 
@@ -1065,7 +1226,7 @@ app.post('/admin/user/resolve-trade/profit' , (req,res) => {
 app.post('/admin/user/resolve-trade/loss' , (req,res) => {
     console.log(req.body)
 
-    if (!req.body.email || req.body.email == "" ) {
+    if (!req.body.email || req.body.email == "" || !req.body.price) {
         res.send({ status:"failed" , msg: "provide email" })
 
     } else {
@@ -1082,7 +1243,7 @@ app.post('/admin/user/resolve-trade/loss' , (req,res) => {
                 return
             }
 
-            userLoss(emailFound.user.id , {} , "admin" )
+            userLoss(emailFound.user.id , {avgPrice:req.body.price} , "admin" )
             removeUsersTradingList(emailFound.user.id)
             makeReferralCode(emailFound.user.id)
 

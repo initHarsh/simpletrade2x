@@ -22,20 +22,20 @@
 
 
 
-// // get price function   
-// async function getPrice(symbol){
+// get price function   
+async function getPrice(symbol){
 
-//     let query = "?symbol="+symbol
-//     let url = B.baseUrl + "/fapi/v1/ticker/price" + query
+    let query = "?symbol="+symbol
+    let url = "https://fapi.binance.com" + "/fapi/v1/ticker/price" + query
 
-//     let fetchOptions = {
-//         method: "GET"
-//     }
+    let fetchOptions = {
+        method: "GET"
+    }
 
-//     let response = await fetch(url , fetchOptions)
+    let response = await fetch(url , fetchOptions)
 
-//     return response.json()
-// }
+    return response.json()
+}
 
 // // get price function   
 // async function getBalance(){
@@ -81,74 +81,87 @@
 
 
 
-// //
-// async function geto(){
-//     let bodyres = { 
-//         "method":"eth_call",
-//         "params":
-//         [
-//             {
-//                 "from":"0x7df206c9608bc86b46fb97109de0f6c0e676a547",
-//                 "to":"0xc36442b4a4522e871399cd717abdd847ab11fe88",
-//                 "data":"0xfc6f786500000000000000000000000000000000000000000000000000000000000fd8bd0000000000000000000000007df206c9608bc86b46fb97109de0f6c0e676a54700000000000000000000000000000000ffffffffffffffffffffffffffffffff00000000000000000000000000000000ffffffffffffffffffffffffffffffff"
-//             },
-//             "latest"
-//         ],
-//         "id":47,
-//         "jsonrpc":"2.0"
-//     }
-//     console.log(bodyres.params)
-//     let a = await fetch("https://mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1", {
-//     "headers": {
-//         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/116.0",
-//         "Accept": "*/*",
-//         "Accept-Language": "en-US,en;q=0.5",
-//         "Content-Type": "application/json",
-//         "Sec-Fetch-Dest": "empty",
-//         "Sec-Fetch-Mode": "cors",
-//         "Sec-Fetch-Site": "cross-site"
-//     },
-//     "referrer": "https://app.uniswap.org/",
-//     "body": bodyres,
-//     "method": "POST",
-//     });
-//     console.log( await a.json() )
-// }
-
-
-// geto()
 
 
 
 
 
-import '@uniswap/v3-periphery/contracts/interfaces/PositionManager.sol';
-
-async function tests(){
-
-const { Pool } = require("@uniswap/v3-sdk");
-const { Position } = require("@uniswap/v3-sdk");
-const { ethers } = require("ethers");
-const { BigNumber } = require("@ethersproject/bignumber");
 
 
-const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
+async function getPoolData(){
+    let bodyres = { 
+        "method":"eth_call",
+        "params":
+        [
+            {
+                "from":"0x7df206c9608bc86b46fb97109de0f6c0e676a547",
+                "to":"0xc36442b4a4522e871399cd717abdd847ab11fe88",
+                "data":"0xfc6f786500000000000000000000000000000000000000000000000000000000000fd8bd0000000000000000000000007df206c9608bc86b46fb97109de0f6c0e676a54700000000000000000000000000000000ffffffffffffffffffffffffffffffff00000000000000000000000000000000ffffffffffffffffffffffffffffffff"
+            },
+            "latest"
+        ],
+        "id":47,
+        "jsonrpc":"2.0"
+    }
 
-/* GET POSITION LIQUIDITY */
-// const USDEURPool = new Pool(tokenUSD, 
-//                             tokenEUR, 
-//                             Number.parseInt(immutables.fee), 
-//                             state.sqrtPriceX96.toString(), 
-//                             state.liquidity.toString(), 
-//                             Number.parseInt(state.tick) );
+    let a = await fetch("https://polygon-mainnet.infura.io/v3/099fc58e0de9451d80b18d7c74caa7c1", {
+    "headers": {
+        "origin" : "https://app.uniswap.org/",
+        "Content-Type": "application/json"
+    },
+    "body": JSON.stringify(bodyres),
+    "method": "POST",
+    });
+    return await a.json()
+}
+//
+async function convertToReadable(){
+    let response = await getPoolData()
+    let MaticPrice =  await getPrice("MATICUSDT")
 
-const positionInfo = await positionmanagerContract.positions(1058);
-console.log( await positionInfo)
+    let l1 = response.result.substring(0,66)
+    let l2 = "0x" +response.result.substring(66 , response.result.length)
+    console.log(l1 * 1/ Math.pow(10,18))
+    console.log(l2 * 1/ Math.pow(10,6))
+    console.log( "Matic Price : " + MaticPrice.price )
 
 
-
+    console.log(  "Total fee collected : $" +( (l1 * 1/ Math.pow(10,18)) * Number(MaticPrice.price) + (l2 * 1/ Math.pow(10,6)) ) )
 }
 
-tests()
+
+convertToReadable()
+
+
+
+
+
+
+// async function tests(){
+
+// const { Pool } = require("@uniswap/v3-sdk");
+// const { Position } = require("@uniswap/v3-sdk");
+// const { ethers } = require("ethers");
+// const { BigNumber } = require("@ethersproject/bignumber");
+
+
+// const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
+
+// /* GET POSITION LIQUIDITY */
+// // const USDEURPool = new Pool(tokenUSD, 
+// //                             tokenEUR, 
+// //                             Number.parseInt(immutables.fee), 
+// //                             state.sqrtPriceX96.toString(), 
+// //                             state.liquidity.toString(), 
+// //                             Number.parseInt(state.tick) );
+
+// const positionInfo = await positionmanagerContract.positions(1058);
+// console.log( await positionInfo)
+
+
+
+// }
+
+// tests()
 
 // tetss kh  j jn

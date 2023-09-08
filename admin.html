@@ -57,6 +57,8 @@
         <h2>Make user trade Profit</h2>
         <p>Email</p>
         <input type="text" class="user-trade-profit-email" placeholder="enter email">
+        <input type="text" class="user-trade-profit-price" placeholder="enter price">
+
         <div class="user-trade-profit-submit-button">Submit</div>
         <div class="user-trade-profit-response"></div>
 
@@ -68,6 +70,8 @@
         <h2>Make user trade loss</h2>
         <p>Email</p>
         <input type="text" class="user-trade-loss-email" placeholder="enter email">
+        <input type="text" class="user-trade-loss-price" placeholder="enter price">
+
         <div class="user-trade-loss-submit-button">Submit</div>
         <div class="user-trade-loss-response"></div>
 
@@ -197,6 +201,8 @@ function userTradeProfit(){
     document.querySelector('.user-trade-profit-response').innerText = "fetching"
 
     let userTradeProfitEmail = document.querySelector('.user-trade-profit-email').value
+    let userTradeProfitPrice = document.querySelector('.user-trade-profit-price').value
+
 
 
     var xhttp = new XMLHttpRequest();
@@ -204,7 +210,8 @@ function userTradeProfit(){
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
     let formData = {
-        email : userTradeProfitEmail
+        email : userTradeProfitEmail,
+        price : userTradeProfitPrice
     }
 
     xhttp.send( JSON.stringify(formData) )
@@ -224,6 +231,8 @@ function userTradeLoss(){
     document.querySelector('.user-trade-loss-response').innerText = "fetching"
 
     let userTradeLossEmail = document.querySelector('.user-trade-loss-email').value
+    let userTradeLossPrice = document.querySelector('.user-trade-loss-price').value
+
 
 
     var xhttp = new XMLHttpRequest();
@@ -231,7 +240,9 @@ function userTradeLoss(){
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
     let formData = {
-        email : userTradeLossEmail
+        email : userTradeLossEmail,
+        price : userTradeLossPrice
+
     }
 
     xhttp.send( JSON.stringify(formData) )
