@@ -340,19 +340,19 @@ async function placeTrade(userId , side , amount) {
     
 
     //calculate quantity 
-    // let symbolName = "MATICUSDT"
-    // let symbolQuantityPrecision = 0
-    // let symbolPricePrecision = 4
+    let symbolName = "MATICUSDT"
+    let symbolQuantityPrecision = 0
+    let symbolPricePrecision = 4
+    let leverage = 50
+    let stopLossPercentage = 0.0120
+    let takeProfitPercentage = 0.023 
+
+    // let symbolName = "BTCUSDT"
+    // let symbolQuantityPrecision = 3
+    // let symbolPricePrecision = 2
     // let leverage = 50
     // let stopLossPercentage = 0.0125
-    // let takeProfitPercentage = 0.023 
-
-    let symbolName = "BTCUSDT"
-    let symbolQuantityPrecision = 3
-    let symbolPricePrecision = 2
-    let leverage = 50
-    let stopLossPercentage = 0.0125
-    let takeProfitPercentage = 0.023
+    // let takeProfitPercentage = 0.023
 
 
     let symbolPrice = await binance.getPrice(symbolName)
@@ -735,6 +735,11 @@ function removeReferralCode(userId , code, name , id ){
                 
             }
 
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User refer code removed ' + code)
+            })
+
         }
 
     }
@@ -916,7 +921,7 @@ app.post('/signup',(req,res)=>{
                 freeBalance : 0,
                 inOrder : 0,
                 totalDeposits : 0,
-                totalWitdraws : 0,
+                totalWithdraws : 0,
                 totalProfits : 0,
                 totalLosses : 0 ,
                 totalReferral : 0

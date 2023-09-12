@@ -26,7 +26,7 @@
 
 
     .app{
-        background-color: #FFFDFA;
+        background-color: #f7f7f7;
 
         max-width:450px ;
         width: 100%;
@@ -35,15 +35,22 @@
     .navbar{
         background-color: white;
         display: flex;
+        justify-content: space-between;
         padding: 20px 20px;
+        border: 1px solid rgb(235, 235, 235);
+        box-shadow: 0 1px 5px rgb(229, 229, 229);
     }
 
 
     .welcome-box{
-        background-color: #FFFDFA;
+        
+
         display: flex;
         justify-content: center;
-        padding: 10px;
+        padding: 30px;
+        padding-bottom: 0;
+        
+
     }
 
     .welcome-msg{
@@ -53,13 +60,15 @@
         width: 80%;
         border-radius: 40px;
         padding: 10px 20px;
+        border: 1px solid rgb(235, 235, 235);
+
         
     }
 
     .wallet-box-container{
         display: flex;
         justify-content: center;
-        background-color: #FFFDFA;
+        
         /* background-image: conic-gradient(#e9e9d6 0deg ,#e9e9d6 90deg , white 90deg, white 270deg, #e9e9d6 270deg); */
         padding: 30px 0;
     }
@@ -67,6 +76,8 @@
     .wallet-box{
         background-color: white;
         display: flex;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
         width: 80%;
         border-radius: 40px;
@@ -74,8 +85,24 @@
         box-shadow: 0px 2px 4px grey;
 
     }
+    .wallet-overview-box{
+        width: 80%;
+        background-color: rgb(236, 236, 236);
+        border-radius: 10px;
+        padding: 10px 20px;
+
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .wallet-overview{
+        flex-basis: 50%;
+        margin: 5px 0;
+        text-align: center;
+        
+    }
     .wallet-balance{
-        background-color: #FFFDFA;
+        background-color: rgb(40, 209, 251);
         font-size: x-large;
         text-align: center;
         width: 80%;
@@ -99,7 +126,7 @@
         display: flex;
         justify-content: center;
         padding: 20px 0;
-        background-color: white;
+        
         /* background-image: conic-gradient(white 0deg ,white 90deg , #e9e9d6 90deg, #e9e9d6 270deg, white 270deg); */
     }
 
@@ -160,7 +187,7 @@
         display: none;
         justify-content: center;
         padding: 20px 0;
-        background-color: #FFFDFA;
+        
         /* background-image: conic-gradient(white 0deg ,white 90deg , #e9e9d6 90deg, #e9e9d6 270deg, white 270deg); */
     }
 
@@ -230,7 +257,7 @@
         display: flex;
         justify-content: center;
         padding: 20px 0;
-        background-color: #FFFDFA;
+        
     }
     .trade-result-box{
         background-color: white;
@@ -260,7 +287,7 @@
         display: flex;
         justify-content: center;
         padding: 20px 0;
-        background-color: #F6FCFF;
+        
     }
     .referral-codes-box{
         background-color: white;
@@ -297,7 +324,7 @@
         display: flex;
         justify-content: center;
         padding: 20px 0;
-        background-color: #F6FCFF;
+        
     }
     .referral-team-box{
         background-color: white;
@@ -358,6 +385,7 @@
 <div class="app">
     <nav class="navbar">
         <img src="./logo.svg">
+        <img src="./proflie.png">
     </nav>
 
     <div class="welcome-box">
@@ -368,6 +396,24 @@
 
     <div class="wallet-box-container">
         <div class="wallet-box">
+            <div class="wallet-overview-box">
+
+                <div class="wallet-overview">Total withdraw</div>
+                <div class="wallet-overview wallet-total-withdraw">400</div>
+                <div class="wallet-overview">Total deposit</div>
+                <div class="wallet-overview wallet-total-deposit">300</div>
+                <div class="wallet-overview">Total refer</div>
+                <div class="wallet-overview wallet-total-refer">42</div>
+                <div class="wallet-overview">Total loss</div>
+                <div class="wallet-overview wallet-total-loss">-100</div>
+                <div class="wallet-overview">Total profit</div>
+                <div class="wallet-overview wallet-total-profit">250</div>
+
+                <div class="wallet-overview">Amount in trade</div>
+                <div class="wallet-overview wallet-in-trade">120</div>
+
+
+            </div>
             <div class="wallet-balance">Balance: ₹ fetching</div>
         </div>
     </div>
@@ -915,6 +961,16 @@
 
             document.querySelectorAll('.wallet-balance')[0].innerText = "Balance: ₹ " + response.msg.freeBalance
             document.querySelectorAll('.wallet-balance')[1].innerText = "Balance: ₹ " + response.msg.freeBalance
+            document.querySelector('.wallet-total-refer').innerText = "₹ " + response.msg.totalReferral
+            document.querySelector('.wallet-total-withdraw').innerText = "₹ " + response.msg.totalWithdraws
+            document.querySelector('.wallet-total-deposit').innerText = "₹ " + response.msg.totalDeposits
+            document.querySelector('.wallet-total-loss').innerText = "₹ " + response.msg.totalLosses
+            document.querySelector('.wallet-total-profit').innerText = "₹ " + response.msg.totalProfits
+            document.querySelector('.wallet-in-trade').innerText = "₹ " + response.msg.inOrder
+
+
+
+
 
 
 
@@ -924,7 +980,7 @@
 
     // function execute at load
     getUserData()
-    
+    getUserWallet()
     getCurrentTrade()
     getPreviousTradeResult()
     getReferralCodes()

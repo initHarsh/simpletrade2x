@@ -1,24 +1,24 @@
-// let crypto = require('crypto')
-// const dotenv = require('dotenv')
-// dotenv.config()
+let crypto = require('crypto')
+const dotenv = require('dotenv')
+dotenv.config()
 
-// let B = {
-//     apiKey : process.env.APIKEY ,
-//     secretKey : process.env.SECRETKEY  ,
-//     baseUrl : process.env.BASEURL ,
+let B = {
+    apiKey : process.env.APIKEY ,
+    secretKey : process.env.SECRETKEY  ,
+    baseUrl : process.env.BASEURL ,
 
-// }
+}
 
 
 
-// // create signautre function
-// function createSignature(query){
-//     let hmac = crypto.createHmac('sha256', B.secretKey);
-//     let data = hmac.update(query);
-//     let gen_hmac= data.digest('hex');
+// create signautre function
+function createSignature(query){
+    let hmac = crypto.createHmac('sha256', B.secretKey);
+    let data = hmac.update(query);
+    let gen_hmac= data.digest('hex');
 
-//     return gen_hmac
-// }
+    return gen_hmac
+}
 
 
 
@@ -37,37 +37,37 @@ async function getPrice(symbol){
     return response.json()
 }
 
-// // get price function   
-// async function getBalance(){
+// get price function   
+async function getBalance(){
 
-//     let query = "timestamp=" + Date.now()
+    let query = "timestamp=" + Date.now()
 
-//     query += "&signature=" + createSignature(query)
+    query += "&signature=" + createSignature(query)
 
-//     let url = B.baseUrl + "/fapi/v2/balance" + "?"+ query
+    let url = B.baseUrl + "/fapi/v2/balance" + "?"+ query
 
-//     let fetchOptions = {
-//         method: "GET" ,
-//         headers : {
-//             "X-MBX-APIKEY" : B.apiKey 
-//         }
-//     }
+    let fetchOptions = {
+        method: "GET" ,
+        headers : {
+            "X-MBX-APIKEY" : B.apiKey 
+        }
+    }
 
-//     let response = await fetch(url , fetchOptions)
+    let response = await fetch(url , fetchOptions)
 
-//     return response.json()
-// }
+    return response.json()
+}
 
 
 
-// async function test() {
-//     console.log( await getPrice("MATICUSDT"))
-//     console.log( await getBalance())
+async function test() {
+    console.log( await getPrice("MATICUSDT"))
+    console.log( await getBalance())
 
     
-// }
+}
 
-// // test()
+test()
 
 
 
@@ -137,28 +137,34 @@ convertToReadable()
 
 
 
-// async function tests(){
+// // async function tests(){
 
-// const { Pool } = require("@uniswap/v3-sdk");
-// const { Position } = require("@uniswap/v3-sdk");
-// const { ethers } = require("ethers");
-// const { BigNumber } = require("@ethersproject/bignumber");
-
-
-// const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
-
-// /* GET POSITION LIQUIDITY */
-// // const USDEURPool = new Pool(tokenUSD, 
-// //                             tokenEUR, 
-// //                             Number.parseInt(immutables.fee), 
-// //                             state.sqrtPriceX96.toString(), 
-// //                             state.liquidity.toString(), 
-// //                             Number.parseInt(state.tick) );
-
-// const positionInfo = await positionmanagerContract.positions(1058);
-// console.log( await positionInfo)
+// const uni = require("@uniswap/v3-sdk");
+// // const { Position } = require("@uniswap/v3-sdk");
+// // const { ethers } = require("ethers");
+// // const { BigNumber } = require("@ethersproject/bignumber");
 
 
+// // const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
+
+// // /* GET POSITION LIQUIDITY */
+// // // const USDEURPool = new Pool(tokenUSD, 
+// // //                             tokenEUR, 
+// // //                             Number.parseInt(immutables.fee), 
+// // //                             state.sqrtPriceX96.toString(), 
+// // //                             state.liquidity.toString(), 
+// // //                             Number.parseInt(state.tick) );
+
+// async function dd(){
+//     let a = new uni.NonfungiblePositionManager.INTERFACE.getFunction("positions")
+//     console.log(a())
+//     // const positionInfo = await INonfungiblePositionManager.positions(1058);
+//     // console.log( await positionInfo)
+    
+    
+// }
+
+// dd()
 
 // }
 
