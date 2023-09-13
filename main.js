@@ -830,6 +830,14 @@ app.get('/trade',checkCookie,(req,res) => {
 })
 
 
+app.get('/deposit',checkCookie,(req,res) => {
+    
+    res.sendFile(dir + '/deposit.html')
+})
+
+
+
+
 
 // Post routesv  jhuibbbugn jkkjhjjljhvhjygm c jck 
 

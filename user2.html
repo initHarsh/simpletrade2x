@@ -102,13 +102,13 @@
         
     }
     .wallet-balance{
-        background-color: rgb(40, 209, 251);
+        background-color: #00c386;
         font-size: x-large;
         text-align: center;
         width: 80%;
         border-radius: 40px;
         padding: 10px 20px;
-
+        color: white;
         margin: 20px 0;
     }
     .chart-title{
@@ -380,12 +380,57 @@
     }
 
 
+    .menu-box{
+        position: sticky;
+        background-color: white;
+        height: 100vh;
+        
+        top: 0;
+
+        display: none;
+        flex-direction: column;
+        padding: 20px;
+        z-index: 2;
+
+    }
+    .menu-close-button{
+        text-align: right;
+        font-size: 28px;
+        padding: 5px;
+        cursor: pointer;
+    }
+    .menu-option{
+        font-size: 24px;
+        text-align: center;
+        padding: 20px 0;
+
+    }
+    .menu-option > a{
+        text-decoration: none;
+        color: black;
+    }
 </style>
 <body>
 <div class="app">
+
+        <div class="menu-box">
+            <div class="menu-close-button">
+                &#10060;
+            </div>
+            <div class="menu-option">
+                <a href="/deposit">Deposit</a>
+            </div>
+            <div class="menu-option">Withdraw</div>
+            <div class="menu-option">Contact Us</div>
+            <div class="menu-option">Support</div>
+        </div>
+
+  
+
+
     <nav class="navbar">
         <img src="./logo.svg">
-        <img src="./proflie.png">
+        <img class="menu-open-button" src="./proflie.png">
     </nav>
 
     <div class="welcome-box">
@@ -399,18 +444,18 @@
             <div class="wallet-overview-box">
 
                 <div class="wallet-overview">Total withdraw</div>
-                <div class="wallet-overview wallet-total-withdraw">400</div>
+                <div class="wallet-overview wallet-total-withdraw">0</div>
                 <div class="wallet-overview">Total deposit</div>
-                <div class="wallet-overview wallet-total-deposit">300</div>
+                <div class="wallet-overview wallet-total-deposit">0</div>
                 <div class="wallet-overview">Total refer</div>
-                <div class="wallet-overview wallet-total-refer">42</div>
+                <div class="wallet-overview wallet-total-refer">0</div>
                 <div class="wallet-overview">Total loss</div>
-                <div class="wallet-overview wallet-total-loss">-100</div>
+                <div class="wallet-overview wallet-total-loss">0</div>
                 <div class="wallet-overview">Total profit</div>
-                <div class="wallet-overview wallet-total-profit">250</div>
+                <div class="wallet-overview wallet-total-profit">0</div>
 
                 <div class="wallet-overview">Amount in trade</div>
-                <div class="wallet-overview wallet-in-trade">120</div>
+                <div class="wallet-overview wallet-in-trade">0</div>
 
 
             </div>
@@ -645,6 +690,8 @@
         document.querySelector('.current-trade-box-container').style.display = "flex"
 
     }
+
+
 
 
     // // trade functions 
@@ -901,6 +948,16 @@
     document.querySelector('.trade-sell-button').addEventListener('click', () => {
         let amount = document.querySelector('.trade-amount-input').value
         placeNewTrade("SELL" , Number(amount))
+    })
+
+    document.querySelector('.menu-close-button').addEventListener('click', () => {
+        document.querySelector('.menu-box').style.display = "none"
+        
+    })
+
+    document.querySelector('.menu-open-button').addEventListener('click', () => {
+        document.querySelector('.menu-box').style.display = "flex"
+        
     })
 
     // // Popup close button

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit</title>
+</head>
+<style>
+     *{
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        background-color: #252525;
+        display: flex;
+        justify-content: center;
+        font-family: sans-serif;
+
+    }
+
+    .warning{
+        color: #8B0C0C;
+    }
+    .green{
+        color: #307D2F;
+    }
+
+    .app{
+        background-color: #f7f7f7;
+
+        max-width:450px ;
+        width: 100%;
+    }
+
+    .enter-deposit-box-container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 50px;
+        padding: 15px;
+    }
+    .enter-deposit-title{
+        font-size: 18px;
+        padding: 10px;
+    }
+    .enter-deposit-input{
+        font-size: 20px;
+        padding: 8px;
+        text-align: center;
+        border-radius: 5px;
+        border: 1px solid #d5d5d5;
+        margin-bottom: 30px;
+    }
+    .account-info-box{
+        display: flex;
+        flex-wrap: wrap;
+        background-color: white;
+        border-radius: 20px;
+        border: 1px solid #d5d5d5;
+
+        margin: 30px 0;
+        padding: 20px;
+    }
+    .account-info{
+        flex-basis: 50%;
+    }
+    .usdt-box{
+        text-align: center;
+        background-color: white;
+        border-radius: 20px;
+        border: 1px solid #d5d5d5;
+        width: 70%;
+        margin: 30px 0;
+        padding: 10px;
+        font-size: 20px;
+    }
+    .divider{
+        background-color: #e6e6e6;
+        height: 3px;
+        width: 100%;
+        margin : 20px 0;
+    }
+</style>
+<body>
+
+<div class="app">
+    <div class="enter-deposit-box-container">
+        <div class="enter-deposit-title">
+            Enter The Amount You Want To Deposit
+        </div>
+        <input class="enter-deposit-input" placeholder="Enter amount in INR">
+        <div class="enter-deposit-title">
+            Open Binance Pay Enter The Amount In
+            USDT (Which Is Given Below) 
+        </div>
+        <img width="100%" src="./deposit.png">
+        <div class="account-info-box">
+            <div class="account-info">PAY ID</div>
+            <div class="account-info">539130647</div>
+            <div class="account-info">Account Name</div>
+            <div class="account-info">Tradesy-111</div>
+        </div>
+        <div class="enter-deposit-title warning">
+            Make sure to enter your Account Email in the note section.
+            It Is Compulsory To Help Us Recognise Its You.
+        </div>
+        <div class="usdt-box">
+            0 USDT
+        </div>
+        <div class="enter-deposit-title">
+            Transfer Given Amount Of  USDT To The Wallet Which
+ Is Equivalent To The Amount You Want To Deposite
+        </div>
+        <div class="divider">
+
+        </div>
+        <div class="enter-deposit-title green">
+            Note: Direct Deposite Service With UPI Is 
+Currently Closed Due To Some Technical 
+Issues, It Will Be Recontinued Shortly
+        </div>
+    </div>
+</div>
+
+<script>
+
+function precisionTo(number,precison) {
+
+let result 
+let csplit = number.toString().split(".")
+
+if (precison == 0) {
+    result = Math.floor(number)
+
+} else if (csplit.length == 1 ) {
+    result = number
+
+} else {
+    csplit[1] = csplit[1].substring(0,precison) 
+    result = Number( csplit.join(".") )
+}
+
+
+console.log(number , result , precison)
+return result
+}
+
+
+    document.querySelector(".enter-deposit-input").addEventListener('change',()=>{
+        let usdt = Number(document.querySelector(".enter-deposit-input").value) / 90 
+        console.log(usdt)
+        document.querySelector(".usdt-box").innerText = precisionTo(usdt,2) + " USDT"
+    })
+
+</script>
+</body>
+</html>
