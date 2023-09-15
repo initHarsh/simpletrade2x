@@ -922,7 +922,7 @@ function sendToReferrer(userId , code ,  amount ){
 // Routes 
 
 app.get('/',(req,res)=>{
-    res.sendFile(dir+'/home.html')
+   res.redirect('/user')
 })
 
 
@@ -946,15 +946,6 @@ app.get('/login',(req,res)=>{
 
 app.get('/user',checkCookie,(req,res)=>{
     res.sendFile(dir+'/user2.html')
-})
-
-app.get('/user2',(req,res)=>{
-    res.sendFile(dir+'/user2.html')
-})
-
-
-app.get('/trade',checkCookie,(req,res) => {
-    res.sendFile(dir + '/trade.html')
 })
 
 
