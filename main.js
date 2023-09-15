@@ -6,6 +6,8 @@ const fs = require('fs')
 var cookieParser = require('cookie-parser')
 var crypto = require('crypto');
 const { queryOrder } = require('./binance');
+const dotenv = require('dotenv')
+dotenv.config()
 
 
 const { precisionTo } = require(__dirname+'/tc.js')
@@ -1242,14 +1244,46 @@ app.get('/data/user/withdraw', dataCheckCookie ,(req,res)=>{
 
 
 
-// Admin routes
 
-app.get('/admin', (req,res) => {
+
+
+// admin cookie checker
+// data route protector
+
+function adminCookie(req,res,next){
+
+    if (!req.cookies.user) {
+        res.redirect('/admin/login')
+        return
+    } 
+    
+
+    if (req.cookies.user == process.env.ADMIN) {
+        next()
+    } else {
+        res.redirect('/admin/login')
+    }
+
+}
+
+
+
+
+
+// Admin routesadminCookie
+
+app.get('/admin',adminCookie, (req,res) => {
     res.sendFile(dir+'/admin.html')
     
 })
 
-app.get('/admin/withdraw', (req,res) => {
+app.get('/admin/login', (req,res) => {
+    res.sendFile(dir+'/adminLogin.html')
+    
+})
+
+
+app.get('/admin/withdraw',adminCookie, (req,res) => {
     res.sendFile(dir+'/adminWithdraw.html')
     
 })
@@ -1257,25 +1291,25 @@ app.get('/admin/withdraw', (req,res) => {
 
 
 
-app.get('/admin/user-trading-list/length', (req,res) => {
+app.get('/admin/user-trading-list/length',adminCookie, (req,res) => {
     res.send({status : "passed" , msg : usersTrading.length })
 
 })
 
 
-app.get('/admin/user-list/length', (req,res) => {
+app.get('/admin/user-list/length', adminCookie ,(req,res) => {
     res.send({status : "passed" , msg : users.length })
 
 })
 
 
-app.get('/admin/withdraw-list/length', (req,res) => {
+app.get('/admin/withdraw-list/length',adminCookie , (req,res) => {
     res.send({status : "passed" , msg : withdrawList.length })
 
 })
 
 
-app.get('/admin/withdraw-list/', (req,res) => {
+app.get('/admin/withdraw-list/', adminCookie , (req,res) => {
     res.send({status : "passed" , msg : withdrawList})
 
 })
@@ -1284,7 +1318,26 @@ app.get('/admin/withdraw-list/', (req,res) => {
 
 // Admin data routes 
 
-app.post('/admin/query/user',(req,res) => {
+
+app.post('/admin/login',(req,res) => {
+    console.log(req.body)
+
+    res.cookie("user",req.body.email,{maxAge:cookieExpireTime , httpOnly: true})
+    
+    res.send({ status: "passed" , msg: "Loged In" , redirect: true , redirectLink: "/admin"})
+
+})
+
+
+
+
+
+
+
+
+
+
+app.post('/admin/query/user',adminCookie ,(req,res) => {
 
     if(req.body.email == ""|| !req.body.email ){
         res.send({ status:"failed" , msg: "Please send a valid email : "+req.body.email })
@@ -1326,7 +1379,7 @@ app.post('/admin/query/user',(req,res) => {
 
 
 
-app.post('/admin/add/deposit',(req,res) => {
+app.post('/admin/add/deposit',adminCookie ,(req,res) => {
     console.log(req.body)
 
     if (!req.body.email || req.body.email == "" ) {
@@ -1349,7 +1402,7 @@ app.post('/admin/add/deposit',(req,res) => {
 })
 
 
-app.post('/admin/approve/withdraw',(req,res) => {
+app.post('/admin/approve/withdraw',adminCookie ,(req,res) => {
     console.log(req.body)
 
     if (!req.body.email || req.body.email == "" ) {
@@ -1373,7 +1426,7 @@ app.post('/admin/approve/withdraw',(req,res) => {
 })
 
 
-app.post('/admin/block/user-trade' , (req,res) => {
+app.post('/admin/block/user-trade' ,adminCookie , (req,res) => {
     console.log(req.body)
 
     if (!req.body.email || req.body.email == "" ) {
@@ -1394,7 +1447,7 @@ app.post('/admin/block/user-trade' , (req,res) => {
 
 
 
-app.post('/admin/unblock/user-trade' , (req,res) => {
+app.post('/admin/unblock/user-trade' , adminCookie ,(req,res) => {
     console.log(req.body)
 
     if (!req.body.email || req.body.email == "" ) {
@@ -1415,7 +1468,7 @@ app.post('/admin/unblock/user-trade' , (req,res) => {
 })
 
 
-app.post('/admin/user/resolve-trade/profit' , (req,res) => {
+app.post('/admin/user/resolve-trade/profit' ,adminCookie , (req,res) => {
     console.log(req.body)
 
     if (!req.body.email || req.body.email == "" || !req.body.price) {
@@ -1447,7 +1500,7 @@ app.post('/admin/user/resolve-trade/profit' , (req,res) => {
 })
 
 
-app.post('/admin/user/resolve-trade/loss' , (req,res) => {
+app.post('/admin/user/resolve-trade/loss' ,adminCookie , (req,res) => {
     console.log(req.body)
 
     if (!req.body.email || req.body.email == "" || !req.body.price) {
