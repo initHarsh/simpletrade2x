@@ -80,10 +80,114 @@
         width: 100%;
         margin : 20px 0;
     }
+    .deposit-history-box{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        min-height: 400px;
+    }
+    .deposit-history-title{
+        width: 100%;
+
+    }
+    .deposit-box{
+        display: flex;
+        justify-content: space-between;
+        width: 90%;
+        background-color: #f7f7f7;
+        padding: 5px;
+        border: 1px solid #d5d5d5;
+        margin: 10px 0;
+
+    }
+
+
+
+    .navbar{
+        background-color: white;
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 20px;
+        border: 1px solid rgb(235, 235, 235);
+        box-shadow: 0 1px 3px #00c386;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .navbar > img {
+        cursor: pointer;
+        height: 40px;
+    }
+
+
+    .menu-box{
+        position: sticky;
+        background-color: white;
+        height: 100vh;
+        
+        top: 0;
+
+        display: none;
+        flex-direction: column;
+        padding: 20px;
+        z-index: 2;
+
+    }
+    .menu-close-button{
+        text-align: right;
+        font-size: 40px;
+        
+        cursor: pointer;
+        color: #00c386;
+    }
+    .menu-option{
+        font-size: 24px;
+        text-align: center;
+        padding: 20px 0;
+
+    }
+    .menu-option > a{
+        text-decoration: none;
+        color: black;
+    }
 </style>
 <body>
 
 <div class="app">
+    <div class="menu-box">
+        <div class="menu-close-button">
+            &#x2715;
+        </div>
+        <div class="menu-option">
+            <a href="/user">Dashboard</a>
+        </div>
+        <div class="menu-option">
+            <a href="/deposit">Deposit</a>
+        </div>
+        <div class="menu-option">
+            <a href="/withdraw">Withdraw</a>
+        </div>
+
+        <div class="menu-option">Contact Us</div>
+        <div class="menu-option">Support</div>
+
+        <div class="menu-option">
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+
+
+
+<nav class="navbar">
+    <img height="40" src="./logo6.png">
+    <img class="menu-open-button" src="./proflie.png">
+</nav>
+
+
+
     <div class="enter-deposit-box-container">
         <div class="enter-deposit-title">
             Enter The Amount You Want To Deposit
@@ -111,46 +215,136 @@
             Transfer Given Amount Of  USDT To The Wallet Which
  Is Equivalent To The Amount You Want To Deposite
         </div>
-        <div class="divider">
-
-        </div>
+        <div class="divider"></div>
+        
         <div class="enter-deposit-title green">
             Note: Direct Deposite Service With UPI Is 
 Currently Closed Due To Some Technical 
 Issues, It Will Be Recontinued Shortly
         </div>
     </div>
+
+    <div class="divider"></div>
+
+
+
+    <div class="deposit-history-box">
+        <div class="deposit-history-title">Deposit History --- ></div>
+        <!-- <div class="deposit-box">
+            <span>$120</span>
+            <span>COMPLETED</span>
+            <span>9/9/2023, 12:50:36 AM</span>
+
+        </div> -->
+    </div>
+
+
 </div>
 
 <script>
 
-function precisionTo(number,precison) {
+    function precisionTo(number, precison) {
 
-let result 
-let csplit = number.toString().split(".")
+        let result
+        let csplit = number.toString().split(".")
 
-if (precison == 0) {
-    result = Math.floor(number)
+        if (precison == 0) {
+            result = Math.floor(number)
 
-} else if (csplit.length == 1 ) {
-    result = number
+        } else if (csplit.length == 1) {
+            result = number
 
-} else {
-    csplit[1] = csplit[1].substring(0,precison) 
-    result = Number( csplit.join(".") )
-}
-
-
-console.log(number , result , precison)
-return result
-}
+        } else {
+            csplit[1] = csplit[1].substring(0, precison)
+            result = Number(csplit.join("."))
+        }
 
 
-    document.querySelector(".enter-deposit-input").addEventListener('change',()=>{
-        let usdt = Number(document.querySelector(".enter-deposit-input").value) / 90 
+        console.log(number, result, precison)
+        return result
+    }
+
+
+    document.querySelector(".enter-deposit-input").addEventListener('change', () => {
+        let usdt = Number(document.querySelector(".enter-deposit-input").value) / 90
         console.log(usdt)
-        document.querySelector(".usdt-box").innerText = precisionTo(usdt,2) + " USDT"
+        document.querySelector(".usdt-box").innerText = precisionTo(usdt, 2) + " USDT"
     })
+
+
+    function getDepositHistory(){
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/deposit-history");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+
+            let deposits = response.msg
+            console.log(deposits)
+
+            deposits.forEach(deposit => {
+                //document.querySelector('.trade-result').innerText += "\n" + trade.side + " of ₹ " + trade.amountInr + " Result : " + trade.progress
+                
+                let spanAmount = document.createElement('span')
+                let spanStatus = document.createElement('span')
+                let spanDate = document.createElement('span')
+
+
+                spanAmount.innerText = "₹ "+ deposit.amount
+                spanStatus.innerText = "COMPLETED"
+                spanDate.innerText = new Date(deposit.time).toLocaleDateString()
+
+                let div = document.createElement('div')
+                div.className = "deposit-box"
+
+
+                div.appendChild(spanAmount)
+                div.appendChild(spanStatus)
+                div.appendChild(spanDate) 
+
+                document.querySelector('.deposit-history-box').appendChild(div)
+
+
+            });
+
+
+        }
+
+    }
+
+
+    /// event listener
+
+
+    document.querySelector('.menu-close-button').addEventListener('click', () => {
+        document.querySelector('.menu-box').style.display = "none"
+        
+    })
+
+    document.querySelector('.menu-open-button').addEventListener('click', () => {
+        document.querySelector('.menu-box').style.display = "flex"
+        
+    })
+
+
+
+    // onload
+
+
+    getDepositHistory()
 
 </script>
 </body>

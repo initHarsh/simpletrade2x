@@ -6,6 +6,17 @@
     <title>Admin</title>
 </head>
 <body>
+    <div class="info-box">
+        <h1>Number of Registered Users : <span class="number-of-user"> fetching </span></h1>
+        <h1>Number of Users Trading : <span class="number-of-user-trading"> fetching </span></h1>
+        <h1>Number of Pending Withdaw : <span class="number-of-withdraw"> fetching </span></h1>
+        <h2> <a href="/admin/withdraw"> Approve Withdraw : </a></h2>
+
+
+
+    </div>
+
+
     <div class="query-user-box">
         <h2>Query User details</h2>
         <p>Email</p>
@@ -82,7 +93,92 @@
 
 <script>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 // functions
+
+
+
+
+
+
+function numberOfWithdraw(){
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET","/admin/withdraw-list/length");
+    xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+    xhttp.send( )
+
+
+    xhttp.onload = function(){
+        let response = JSON.parse(this.responseText)
+
+        document.querySelector('.number-of-withdraw').innerText = JSON.stringify( response.msg )
+      
+    }
+}
+
+
+function numberOfUser(){
+
+var xhttp = new XMLHttpRequest();
+xhttp.open("GET","/admin/user-list/length");
+xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+xhttp.send( )
+
+
+xhttp.onload = function(){
+    let response = JSON.parse(this.responseText)
+
+    document.querySelector('.number-of-user').innerText = JSON.stringify( response.msg )
+  
+}
+}
+
+
+function numberOfTradingUser(){
+
+var xhttp = new XMLHttpRequest();
+xhttp.open("GET","/admin/user-trading-list/length");
+xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+xhttp.send( )
+
+
+xhttp.onload = function(){
+    let response = JSON.parse(this.responseText)
+
+    document.querySelector('.number-of-user-trading').innerText = JSON.stringify( response.msg )
+  
+}
+}
+
+
+
+
+
+
+
+
+
+
+
 function queryUser(){
     // clear the response area
     document.querySelector('.query-user-response').innerText = "fetching"
@@ -285,7 +381,10 @@ function userTradeLoss(){
     document.querySelector('.user-trade-loss-submit-button').addEventListener('click',()=>{
         userTradeLoss()
     })
-
+// on load functions
+numberOfWithdraw()
+numberOfUser()
+numberOfTradingUser()
 
 </script>
     

@@ -38,9 +38,16 @@
         justify-content: space-between;
         padding: 20px 20px;
         border: 1px solid rgb(235, 235, 235);
-        box-shadow: 0 1px 5px rgb(229, 229, 229);
+        box-shadow: 0 1px 3px #00c386;
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
 
+    .navbar > img {
+        cursor: pointer;
+        height: 40px;
+    }
 
     .welcome-box{
         
@@ -60,7 +67,7 @@
         width: 80%;
         border-radius: 40px;
         padding: 10px 20px;
-        border: 1px solid rgb(235, 235, 235);
+        border: 2px solid rgb(235, 235, 235);
 
         
     }
@@ -74,6 +81,7 @@
     }
 
     .wallet-box{
+        color: rgb(54,74,92);
         background-color: white;
         display: flex;
         flex-direction: column;
@@ -82,7 +90,8 @@
         width: 80%;
         border-radius: 40px;
         padding: 10px 20px;
-        box-shadow: 0px 2px 4px grey;
+        
+        box-shadow: 0px 1px 4px grey;
 
     }
     .wallet-overview-box{
@@ -279,7 +288,7 @@
     .result-box{
         display: flex;
         flex-direction: column;
-        font-size: 14px;
+        font-size: 13px;
     }
 
 
@@ -395,9 +404,10 @@
     }
     .menu-close-button{
         text-align: right;
-        font-size: 28px;
-        padding: 5px;
+        font-size: 40px;
+        
         cursor: pointer;
+        color: #00c386;
     }
     .menu-option{
         font-size: 24px;
@@ -415,21 +425,32 @@
 
         <div class="menu-box">
             <div class="menu-close-button">
-                &#10060;
+                &#x2715;
+            </div>
+            <div class="menu-option">
+                <a href="/user">Dashboard</a>
             </div>
             <div class="menu-option">
                 <a href="/deposit">Deposit</a>
             </div>
-            <div class="menu-option">Withdraw</div>
+            <div class="menu-option">
+                <a href="/withdraw">Withdraw</a>
+            </div>
+
             <div class="menu-option">Contact Us</div>
             <div class="menu-option">Support</div>
+ 
+            <div class="menu-option">
+                <a href="/logout">Logout</a>
+            </div>
+
         </div>
 
   
 
 
     <nav class="navbar">
-        <img src="./logo.svg">
+        <img height="40" src="./logo6.png">
         <img class="menu-open-button" src="./proflie.png">
     </nav>
 
@@ -456,6 +477,9 @@
 
                 <div class="wallet-overview">Amount in trade</div>
                 <div class="wallet-overview wallet-in-trade">0</div>
+
+                <div class="wallet-overview">Amount in withdraw</div>
+                <div class="wallet-overview wallet-in-withdraw">0</div>
 
 
             </div>
@@ -1024,6 +1048,8 @@
             document.querySelector('.wallet-total-loss').innerText = "₹ " + response.msg.totalLosses
             document.querySelector('.wallet-total-profit').innerText = "₹ " + response.msg.totalProfits
             document.querySelector('.wallet-in-trade').innerText = "₹ " + response.msg.inOrder
+            document.querySelector('.wallet-in-withdraw').innerText = "₹ " + response.msg.inWithdraw
+
 
 
 

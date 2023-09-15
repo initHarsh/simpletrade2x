@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw</title>
+</head>
+<style>
+     *{
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        background-color: #252525;
+        display: flex;
+        justify-content: center;
+        font-family: sans-serif;
+
+    }
+
+    .warning{
+        color: #8B0C0C;
+    }
+    .green{
+        color: #307D2F;
+    }
+
+    .app{
+        background-color: #f7f7f7;
+
+        max-width:450px ;
+        width: 100%;
+    }
+
+    .withdraw-box-container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 30px;
+        padding: 15px;
+    }
+    .withdraw-box-title{
+        font-size: 18px;
+        padding: 10px;
+    }
+    .withdraw-input{
+        font-size: 20px;
+        padding: 8px;
+        text-align: center;
+        border-radius: 5px;
+        border: 1px solid #d5d5d5;
+        margin-bottom: 30px;
+    }
+   
+
+    .withdraw-button{
+        background-color: #00c386;
+        color: white;
+        font-family: Roboto , sans-serif;
+        font-weight: 500;
+        text-align: center;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+
+        width: 80%;
+    }
+
+
+
+
+
+    .divider{
+        background-color: #e6e6e6;
+        height: 3px;
+        width: 100%;
+        margin : 20px 0;
+    }
+    .withdraw-history-box{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        min-height: 400px;
+        
+    }
+    .withdraw-history-title{
+        width: 100%;
+
+    }
+    .withdraw-box{
+        display: flex;
+        justify-content: space-between;
+        width: 90%;
+        background-color: #f7f7f7;
+        padding: 5px;
+        border: 1px solid #d5d5d5;
+        margin: 10px 0;
+
+    }
+
+
+    .current-withdraw-box-container{
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 30px;
+        padding: 15px;
+    }
+
+    .current-withdraw-box{
+       background: white;
+       border: 2px solid rgb(235, 235, 235);
+       margin: 5px;
+       padding: 5px;
+       width: 90%;
+       border-radius: 10px;
+    }
+
+    .current-withdraw-box > div{
+       padding: 5px;
+    }
+
+
+
+
+
+
+    .navbar{
+        background-color: white;
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 20px;
+        border: 1px solid rgb(235, 235, 235);
+        box-shadow: 0 1px 3px #00c386;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .navbar > img {
+        cursor: pointer;
+        height: 40px;
+    }
+
+
+    .menu-box{
+        position: sticky;
+        background-color: white;
+        height: 100vh;
+        
+        top: 0;
+
+        display: none;
+        flex-direction: column;
+        padding: 20px;
+        z-index: 2;
+
+    }
+    .menu-close-button{
+        text-align: right;
+        font-size: 40px;
+        
+        cursor: pointer;
+        color: #00c386;
+    }
+    .menu-option{
+        font-size: 24px;
+        text-align: center;
+        padding: 20px 0;
+
+    }
+    .menu-option > a{
+        text-decoration: none;
+        color: black;
+    }
+</style>
+<body>
+
+<div class="app">
+    <div class="menu-box">
+        <div class="menu-close-button">
+            &#x2715;
+        </div>
+        <div class="menu-option">
+            <a href="/user">Dashboard</a>
+        </div>
+        <div class="menu-option">
+            <a href="/deposit">Deposit</a>
+        </div>
+        <div class="menu-option">
+            <a href="/withdraw">Withdraw</a>
+        </div>
+
+        <div class="menu-option">Contact Us</div>
+        <div class="menu-option">Support</div>
+
+        <div class="menu-option">
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+
+
+
+<nav class="navbar">
+    <img height="40" src="./logo6.png">
+    <img class="menu-open-button" src="./proflie.png">
+</nav>
+
+
+    <div class="current-withdraw-box-container">
+        <div class="withdraw-box-title ">
+            Withdraw in Progress 
+        </div>
+        <div class="current-withdraw-box">
+            <div class="current-withdraw-amount">amount : 112</div>
+            <div class="current-withdraw-payid">amount : 112</div>
+            <div class="current-withdraw-payname">amount : 112</div>
+            <div class="current-withdraw-status">amount : 112</div>
+            <div class="current-withdraw-time">amount : 112</div>
+
+        </div>
+        <div class="withdraw-box-title green">
+            Your withdraw will be processed within 12 hours.
+        </div>
+
+         <div class="divider"></div>
+
+
+    </div>
+
+    <div class="withdraw-box-container">
+
+        <div class="withdraw-box-title green">
+            Enjoy 0% withdraw fee for a limited time.
+            Withdraw proccess at a maximum time of 12 hours. 
+        </div>
+
+
+        <div class="withdraw-box-title">
+            Enter Withdraw Amount
+        </div>
+        <input class="withdraw-input input-amount" placeholder="Enter amount in INR">
+
+        <div class="withdraw-box-title">
+            Enter your Binance PAY ID
+        </div>
+        <input class="withdraw-input input-payid" placeholder="Binance PAY ID">
+
+        <div class="withdraw-box-title">
+            Enter your Binance account Name
+        </div>
+        <input class="withdraw-input input-payname" placeholder="Binance account Name">
+
+        <div class="withdraw-button">Withdraw</div>
+
+  
+
+    <div class="divider"></div>
+
+
+
+
+</div>
+
+<div class="withdraw-history-box">
+    <div class="withdraw-history-title">Withdraw History --- ></div>
+        
+
+    
+</div>
+
+<script>
+
+
+    document.querySelector(".withdraw-input").addEventListener('change', () => {
+        let usdt = Number(document.querySelector(".enter-deposit-input").value) / 90
+        console.log(usdt)
+        document.querySelector(".usdt-box").innerText = precisionTo(usdt, 2) + " USDT"
+    })
+
+
+    // functions
+
+    function placeWithdraw() {
+
+
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/user/withdraw");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        let amount = document.querySelector('.input-amount').value
+        let payid = document.querySelector('.input-payid').value
+        let payname = document.querySelector('.input-payname').value
+
+
+        let withdrawDetails = {
+            amount: Number(amount) ,
+            payid : payid ,
+            payname : payname
+        }
+
+        let popupConfirm = window.confirm("Confirm Withdraw Details \n Amount : ₹" + amount + "\n Pay id : " + payid + "\n Pay name : " + payname)
+        if (!popupConfirm) {
+            return
+        }
+
+
+        xhttp.send(JSON.stringify(withdrawDetails))
+
+        xhttp.onload = function () {
+
+            let response = JSON.parse(this.responseText)
+
+            alert(response.msg)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+            if (response.status == "passed") {
+                getCurrentWithdraw()
+            }
+
+        }
+    }
+
+
+
+
+    function getWithdrawHistory(){
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/withdraw-history");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+
+            let withdrawList = response.msg
+            console.log(withdrawList)
+
+
+            withdrawList.forEach(withdraw => {
+                //document.querySelector('.trade-result').innerText += "\n" + trade.side + " of ₹ " + trade.amountInr + " Result : " + trade.progress
+                
+                let spanAmount = document.createElement('span')
+                let spanStatus = document.createElement('span')
+                let spanDate = document.createElement('span')
+
+
+                spanAmount.innerText = "₹ "+ withdraw.amount
+                spanStatus.innerText = withdraw.status
+                spanDate.innerText = new Date(withdraw.time).toLocaleDateString()
+
+                let div = document.createElement('div')
+                div.className = "withdraw-box"
+
+
+                div.appendChild(spanAmount)
+                div.appendChild(spanStatus)
+                div.appendChild(spanDate) 
+
+                document.querySelector('.withdraw-history-box').appendChild(div)
+
+
+            });
+
+
+        }
+
+    }
+
+
+    function getCurrentWithdraw() {
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/data/user/withdraw");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+            if (!response.msg.status) {
+                return
+            }
+
+            let withdraw = response.msg
+            if (withdraw.status = "PENDING") {
+
+                document.querySelector('.current-withdraw-amount').innerText = "Amount : ₹ "+ withdraw.amount
+                document.querySelector('.current-withdraw-payid').innerText = "Pay Id : " + withdraw.payid
+                document.querySelector('.current-withdraw-payname').innerText = "Pay Name : " + withdraw.payname
+                document.querySelector('.current-withdraw-status').innerText = "Status : " +withdraw.status
+                document.querySelector('.current-withdraw-time').innerText = "Time : " + new Date(withdraw.time).toLocaleString()
+
+
+                document.querySelector('.current-withdraw-box-container').style.display = "flex"
+                document.querySelector('.withdraw-box-container').style.display = "none"
+
+
+
+            } else {
+                document.querySelector('.current-withdraw-box-container').style.display = "flex"
+                document.querySelector('.current-withdraw-box-container').innerHTML = "Something went wrong with your trade contact our support or email us"
+            }
+
+        }
+
+    }
+
+
+    /// event listener
+
+    document.querySelector('.withdraw-button').addEventListener('click', () => {
+        placeWithdraw()
+        
+    })
+
+    document.querySelector('.menu-close-button').addEventListener('click', () => {
+        document.querySelector('.menu-box').style.display = "none"
+        
+    })
+
+    document.querySelector('.menu-open-button').addEventListener('click', () => {
+        document.querySelector('.menu-box').style.display = "flex"
+        
+    })
+
+
+
+    // onload
+
+    getCurrentWithdraw()
+    getWithdrawHistory()
+
+</script>
+</body>
+</html>

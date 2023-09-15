@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Withdraw</title>
+</head>
+<style>
+    .withdraw-box{
+        border: 1px solid black;
+        display: flex;
+        flex-direction: column;
+        margin: 20px 0;
+    }
+    .withdraw-box > span {
+        padding: 10px;
+        border: 1px solid black;
+        word-wrap: break-word;
+        cursor: pointer;
+
+    }
+
+</style>
+<body>
+    
+<h2> <a href="/admin"> Go to Admin pannel : </a></h2>
+
+
+<div class="pending-withdraw-box">
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+
+    function approveWithdraw(email) {
+        
+
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/admin/approve/withdraw");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+        let formData = {
+            email: email
+        }
+
+        let popupConfirm = window.confirm("Approve withdawl for user email : " + email)
+        if(!popupConfirm){
+            return
+        }
+
+
+        xhttp.send(JSON.stringify(formData))
+
+
+        xhttp.onload = function () {
+            let response = JSON.parse(this.responseText)
+
+            alert(response.msg)
+        }
+    }
+
+
+
+
+
+
+
+
+
+function getWithdrawList(){
+
+    var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/admin/withdraw-list");
+        xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+        xhttp.send()
+
+        xhttp.onload = function () {
+
+            console.log(this.responseText)
+            let response = JSON.parse(this.responseText)
+
+            if (response.redirect == true) {
+                window.location = response.redirectLink
+            }
+
+
+
+            let withdrawList = response.msg
+            console.log(withdrawList)
+
+            withdrawList.forEach(withdraw => {
+                //document.querySelector('.trade-result').innerText += "\n" + trade.side + " of ₹ " + trade.amountInr + " Result : " + trade.progress
+                
+                let div = document.createElement('div')
+                div.className = "withdraw-box"
+
+                let approveButton = document.createElement('span')
+                approveButton.innerText ="Approve"
+                approveButton.onclick = ()=>{
+                    approveWithdraw(withdraw.email)
+                }
+
+                
+
+                let rejectButton = document.createElement('span')
+                rejectButton.innerText ="Reject"
+
+                let spanInfo = document.createElement('span')
+
+                spanInfo.innerText = JSON.stringify(withdraw)
+
+                div.appendChild(spanInfo)
+                div.appendChild(approveButton)
+                div.appendChild(rejectButton)
+
+                
+                document.querySelector('.pending-withdraw-box').appendChild(div)
+
+
+            });
+
+
+        }
+}
+
+
+
+
+
+
+// onload
+getWithdrawList()
+    
+</script>
+
+
+</body>
+</html>

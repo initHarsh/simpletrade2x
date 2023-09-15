@@ -178,6 +178,11 @@
         let formData = getFormData()
         xhttp.send(JSON.stringify(formData))
 
+        if (formData.password !== formData.cpassword) {
+            alert("Password doesnt match")
+            return
+        }
+
 
         xhttp.onload = function () {
             let response = JSON.parse(this.responseText)
@@ -199,6 +204,8 @@
         formData.email = document.querySelector('.input-email').value
         formData.mobile = document.querySelector('.input-mobile').value
         formData.password = document.querySelector('.input-password').value
+        formData.cpassword = document.querySelector('.input-cpassword').value
+
         formData.referralCode = document.querySelector('.input-referral').value
 
 

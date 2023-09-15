@@ -32,12 +32,13 @@ app.use(express.static(__dirname))
 // Database 
 let users = []
 let usersTrading = []
+let withdrawList = []
 
 
 // Load databases from files
 fs.readFile('users.json','utf-8',(err,data)=>{
     if (err) {
-        
+        console.log(err)
     } else {
         users = JSON.parse(data)
         console.log('*** Loaded users from databases')
@@ -48,11 +49,24 @@ fs.readFile('users.json','utf-8',(err,data)=>{
 
 fs.readFile('usersTrading.json','utf-8',(err,data)=>{
     if (err) {
+        console.log(err)
         
     } else {
         usersTrading = JSON.parse(data)
         console.log('*** Loaded users Trading from databases')
         console.log(" Users Trading : "+ usersTrading.length)
+
+    }
+})
+
+fs.readFile('withdrawList.json','utf-8',(err,data)=>{
+    if (err) {
+        console.log(err)
+        
+    } else {
+        withdrawList = JSON.parse(data)
+        console.log('*** Loaded Withdrawl List from databases')
+        console.log(" Pending Withdrawl : "+ withdrawList.length)
 
     }
 })
@@ -67,6 +81,122 @@ function updateUsersTradingList(){
         console.log('Updated Users Trading File, Total Users trading now : '+usersTrading.length)
     })
 }
+
+function updateWithdrawList(){
+    fs.writeFileSync('withdrawList.json',JSON.stringify(withdrawList),(err)=>{
+        if (err) throw err
+        console.log('Updated Withdraw List , Pending Withdrawls now : '+withdrawList.length)
+    })
+}
+
+
+
+function addUserWithdraw(userId , amount ,payid ,payname){
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].withdrawInProgress = true
+            users[i].wallet.freeBalance -= amount
+            users[i].wallet.inWithdraw += amount
+
+            let usdt = precisionTo( (amount / 90 ) , 2 )
+
+            let timeNow = new Date()
+
+            users[i].latestWithdraw = {
+                userId : userId ,
+                email : users[i].email ,
+                amount : amount ,
+                usdt : usdt ,
+                payid : payid ,
+                payname : payname ,
+                status : "PENDING",
+                timeFormat : timeNow.toLocaleString() ,
+                time : Date.now()
+            }
+
+            // end loop
+            
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User withdraw amount : '+ amount)
+            })
+
+            addWithdrawList(users[i].latestWithdraw)
+        }
+    }
+
+}
+
+
+function approveUserWithdraw(userId){
+
+    for(let i = 0; i < users.length; i++ ){
+        if(users[i].id == userId) {
+
+            users[i].wallet.inWithdraw = 0
+            users[i].wallet.totalWithdraws += users[i].latestWithdraw.amount
+
+
+            users[i].latestWithdraw.status = "COMPLETED"
+            users[i].latestWithdraw.approveTime = Date.now()
+
+
+            users[i].withdrawHistory.push(users[i].latestWithdraw)
+
+            users[i].withdrawInProgress = false
+            users[i].latestWithdraw = {}
+
+            // end loop
+            
+            fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
+                if (err) throw err
+                console.log('User withdraw amount : '+ amount)
+            })
+
+            removeWithdrawList(userId)
+        }
+    }
+
+}
+
+
+
+
+
+function addWithdrawList(withdrawInfo) {
+
+    withdrawList.push(withdrawInfo)
+
+    updateWithdrawList()
+
+}
+
+function removeWithdrawList(userId) {
+    
+    for(let i = 0; i < withdrawList.length ; i++) {
+        if (withdrawList[i].userId == userId ) {
+            //remove the user id
+            withdrawList.splice(i,1)
+        }
+    }
+
+    updateWithdrawList()  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function addUser(user){
     users.push(user)
@@ -93,7 +223,7 @@ function addUserDeposit(userId , depositAmount ) {
             users[i].wallet.freeBalance += depositAmount
             users[i].wallet.totalDeposits += depositAmount
             let timeNow = new Date()
-            users[i].depositHisory.push( { amount : depositAmount ,timeFormat : timeNow.toLocaleString() , time : Date.now()  } )
+            users[i].depositHistory.push( { amount : depositAmount ,timeFormat : timeNow.toLocaleString() , time : Date.now()  } )
 
             result.depositDone = true
 
@@ -326,6 +456,8 @@ async function placeTrade(userId , side , amount) {
             users[i].tradeInProgress = true
             users[i].wallet.freeBalance -= amount
             users[i].wallet.inOrder += amount
+            users[i].wallet.totalTraded += amount
+
 
             // end loop
              
@@ -559,7 +691,7 @@ function userProfit(userId , takeProfitOrder , operator) {
                 return
             }
 
-            let returnAmount = Math.floor( users[i].latestTrade.amountInr * 0.95 )
+            let returnAmount = Math.floor( users[i].latestTrade.amountInr * 0.90 )
 
             
             users[i].latestTrade.returnAmount = returnAmount
@@ -571,7 +703,7 @@ function userProfit(userId , takeProfitOrder , operator) {
             users[i].wallet.inOrder -= users[i].latestTrade.amountInr
 
             // referral income
-            let referralAmount = Math.floor( users[i].latestTrade.amountInr *  0.05 )
+            let referralAmount = Math.floor( users[i].latestTrade.amountInr *  0.10 )
 
             sendToReferrer(users[i].referrerId , users[i].codeUsed , referralAmount  )
 
@@ -615,13 +747,13 @@ function userLoss(userId , stopLossOrder , operator)  {
                 lossAmountInr = lossAmountInr * -1
             }
 
-            let returnAmount = Math.floor(lossAmountInr - ( users[i].latestTrade.amountInr *  0.20))
+            let returnAmount = Math.floor(lossAmountInr - ( users[i].latestTrade.amountInr *  0.25))
 
 
 
             users[i].latestTrade.returnAmount = returnAmount
             
-            // what is left 
+            // what is left             
             users[i].wallet.totalLosses += returnAmount 
             users[i].wallet.inOrder -= users[i].latestTrade.amountInr
             users[i].wallet.freeBalance += users[i].latestTrade.amountInr + returnAmount
@@ -629,7 +761,7 @@ function userLoss(userId , stopLossOrder , operator)  {
             users[i].tradeResultList.push(users[i].latestTrade)   
 
             // referral income
-            let referralAmount = Math.floor( users[i].latestTrade.amountInr *  0.05 )
+            let referralAmount = Math.floor( users[i].latestTrade.amountInr *  0.10 )
 
             sendToReferrer(users[i].referrerId , users[i].codeUsed , referralAmount  )
 
@@ -663,17 +795,13 @@ function makeReferralCode(userId) {
                 return 
             }
 
-            if ( (users[i].tradeResultList.length % 2) == 0 ) {
+            if ( (users[i].wallet.totalTraded % 1000) == 0 ) {
 
                 let referralCode = users[i].name.substring(0,3) + Math.floor(Math.random()*10000)
                 users[i].referralCodes.push(referralCode)    
 
             } 
-
-
-
-             
-
+         
             fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
                 console.log('User new Refer code made')
@@ -836,6 +964,19 @@ app.get('/deposit',checkCookie,(req,res) => {
 })
 
 
+app.get('/withdraw',checkCookie,(req,res) => {
+    
+    res.sendFile(dir + '/withdraw.html')
+})
+
+
+
+app.get('/logout',checkCookie,(req,res) => {
+    
+    res.clearCookie("user")
+    res.redirect('/login')
+})
+
 
 
 
@@ -928,16 +1069,21 @@ app.post('/signup',(req,res)=>{
             wallet : {
                 freeBalance : 0,
                 inOrder : 0,
-                totalDeposits : 0,
+                inWithdraw : 0,
                 totalWithdraws : 0,
+                totalDeposits : 0,
                 totalProfits : 0,
                 totalLosses : 0 ,
-                totalReferral : 0
+                totalReferral : 0,
+                totalTraded : 0 
+
             },
 
-            depositHisory : [] ,
+            depositHistory : [] ,
             withdrawHistory : [] ,
-
+            withdrawInProgress : false ,
+            latestWithdraw : {} ,
+            
             cookie: {
                 cookieHash: 0,
                 expireTime: 1
@@ -1074,6 +1220,8 @@ app.get('/data/user/trade', dataCheckCookie ,(req,res)=>{
     res.send({status : "passed" , msg : res.locals.user.latestTrade })
 })
 
+
+
 app.get('/data/user/trade-result', dataCheckCookie ,(req,res)=>{
     res.send({status : "passed" , msg : res.locals.user.tradeResultList })
 })
@@ -1086,6 +1234,20 @@ app.get('/data/user/referral-team', dataCheckCookie ,(req,res)=>{
     res.send({status : "passed" , msg : res.locals.user.referralTeam })
 })
 
+app.get('/data/user/deposit-history', dataCheckCookie ,(req,res)=>{
+    res.send({status : "passed" , msg : res.locals.user.depositHistory })
+})
+
+
+app.get('/data/user/withdraw-history', dataCheckCookie ,(req,res)=>{
+    res.send({status : "passed" , msg : res.locals.user.withdrawHistory })
+})
+
+app.get('/data/user/withdraw', dataCheckCookie ,(req,res)=>{
+    
+    res.send({status : "passed" , msg : res.locals.user.latestWithdraw })
+
+})
 
 
 
@@ -1095,6 +1257,39 @@ app.get('/admin', (req,res) => {
     res.sendFile(dir+'/admin.html')
     
 })
+
+app.get('/admin/withdraw', (req,res) => {
+    res.sendFile(dir+'/adminWithdraw.html')
+    
+})
+
+
+
+
+app.get('/admin/user-trading-list/length', (req,res) => {
+    res.send({status : "passed" , msg : usersTrading.length })
+
+})
+
+
+app.get('/admin/user-list/length', (req,res) => {
+    res.send({status : "passed" , msg : users.length })
+
+})
+
+
+app.get('/admin/withdraw-list/length', (req,res) => {
+    res.send({status : "passed" , msg : withdrawList.length })
+
+})
+
+
+app.get('/admin/withdraw-list/', (req,res) => {
+    res.send({status : "passed" , msg : withdrawList})
+
+})
+
+
 
 // Admin data routes 
 
@@ -1163,6 +1358,30 @@ app.post('/admin/add/deposit',(req,res) => {
 })
 
 
+app.post('/admin/approve/withdraw',(req,res) => {
+    console.log(req.body)
+
+    if (!req.body.email || req.body.email == "" ) {
+        res.send({ status:"failed" , msg: "provide email" })
+
+    } else {
+        emailFound = findByEmail(req.body.email)
+
+        if (!emailFound.userFound) {
+            res.send({ status:"failed" , msg: "Email not found" })
+        } else {
+            if(emailFound.user.withdrawInProgress == false){
+                res.send({ status:"failed" , msg: "No withdraw in progress" })
+                return
+            }
+            approveUserWithdraw(emailFound.user.id )
+            res.send({ status:"passed" , msg: "Amount Withdraw " })
+        }
+
+    }
+})
+
+
 app.post('/admin/block/user-trade' , (req,res) => {
     console.log(req.body)
 
@@ -1196,6 +1415,7 @@ app.post('/admin/unblock/user-trade' , (req,res) => {
         if (!emailFound.userFound) {
             res.send({ status:"failed" , msg: "Email not found" })
         } else {
+
             unblockUserTrade(emailFound.user.id )
             res.send({ status:"passed" , msg: "User Trade , is now Unblocked : " + emailFound.user.email  })
         }
@@ -1328,6 +1548,72 @@ app.post("/user/new-trade" , dataCheckCookie , (req,res) => {
     res.send({ status : "passed" , msg  : "Trade submitted , refresh if trade doesnt update" })
 
 })
+
+
+
+
+
+
+app.post('/user/withdraw', dataCheckCookie , (req,res)=>{
+    if (req.body.payid && req.body.payid.length > 3) {
+    
+    } else {
+        res.send( res.send( { status : "failed" , msg : "Please add pay id for withdraw" } )) 
+        return
+    }
+
+    if (req.body.payname && req.body.payname.length > 3) {
+    
+    } else {
+        res.send( res.send( { status : "failed" , msg : "Please add pay name for withdraw" } )) 
+        return
+    }
+
+    if (typeof req.body.amount == "number" && req.body.amount > 0) {
+    
+    } else {
+        res.send( res.send( { status : "failed" , msg : "Amount parameter is not correct" } )) 
+        return
+    }
+
+    // Check if amount is greater than 100 
+    if (req.body.amount >= 100) {
+
+    } else {
+        res.send({ status: "failed", msg: "Amount must be greater than 100" })
+        return
+    }
+
+    // Check if user has any trade in progress  
+    if ( res.locals.user.withdrawInProgress == false ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "You already have a withdraw in progress , cant place new withdraw" } )
+        return
+    }
+
+    // Check if user has enough freebalance  
+
+    if ( res.locals.user.wallet.freeBalance >= req.body.amount ) {
+        
+    } else {
+        res.send( { status : "failed" , msg : "You dont have enough balance for withdraw" } )
+        return
+    }
+
+    
+    addUserWithdraw( res.locals.user.id , req.body.amount ,req.body.payid ,req.body.payname)
+
+    res.send({ status : "passed" , msg  : "Withdraw submited" })
+
+    
+})
+
+
+
+
+
+
 
 
 // Server listener
