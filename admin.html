@@ -16,6 +16,14 @@
 
     </div>
 
+    <div class="get-balance-box">
+        <h2>Get Balance</h2>
+       <div class="get-balance-submit-button">Submit</div>
+        <div class="get-balance-response"></div>
+
+    </div>
+
+    <hr>
 
     <div class="query-user-box">
         <h2>Query User details</h2>
@@ -171,6 +179,25 @@ xhttp.onload = function(){
 
 
 
+function getBalance(){
+    document.querySelector('.get-balance-response').innerText = "fetching"
+
+
+var xhttp = new XMLHttpRequest();
+xhttp.open("GET","/admin/balance");
+xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+
+xhttp.send( )
+
+
+xhttp.onload = function(){
+    let response = JSON.parse(this.responseText)
+
+    document.querySelector('.get-balance-response').innerText = JSON.stringify( response.msg )
+  
+}
+}
 
 
 
@@ -355,6 +382,13 @@ function userTradeLoss(){
 
 
 // event listeners
+
+
+    document.querySelector('.get-balance-submit-button').addEventListener('click',()=>{
+        getBalance()
+    })
+
+
 
     document.querySelector('.query-user-submit-button').addEventListener('click',()=>{
         queryUser()

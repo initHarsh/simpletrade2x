@@ -39,6 +39,29 @@ async function getPrice(symbol){
 }
 
 
+// get balance
+async function getBalance(){
+
+    let query = "timestamp=" + Date.now()
+
+    query += "&signature=" + createSignature(query)
+
+    let url = B.baseUrl + "/fapi/v2/balance" + "?"+ query
+
+    let fetchOptions = {
+        method: "GET" ,
+        headers : {
+            "X-MBX-APIKEY" : B.apiKey 
+        }
+    }
+
+    let response = await fetch(url , fetchOptions)
+
+    return response.json()
+}
+
+
+
 
 // get order detail by orderId
 async function queryOrder(detail) {
@@ -154,7 +177,7 @@ async function cancelOrder(detail) {
 }
 
 
-module.exports = { getPrice , queryOrder , newOrder , setStopOrder , cancelOrder }
+module.exports = { getPrice , getBalance , queryOrder , newOrder , setStopOrder , cancelOrder }
 
 console.log(B)
 

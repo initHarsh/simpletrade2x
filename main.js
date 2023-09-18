@@ -1351,6 +1351,16 @@ app.get('/admin/withdraw-list/', adminCookie , (req,res) => {
 })
 
 
+app.get('/admin/balance', adminCookie , async (req,res) => {
+
+    let response = await binance.getBalance()
+    res.send({status : "passed" , msg : response})
+
+})
+
+
+
+
 
 // Admin data routes 
 
@@ -1412,7 +1422,14 @@ app.post('/admin/query/user',adminCookie ,(req,res) => {
     }
 })
 
+
+
+
+
+
 // update data routes
+
+
 
 
 
