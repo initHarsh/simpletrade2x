@@ -538,8 +538,31 @@ async function placeTrade(userId , side , amount) {
     let mainOrder = await binance.newOrder(orderDetail)
     console.log(mainOrder)
 
+
     let queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
     console.log(queryMainOrder)
+
+    if (queryMainOrder.status !== "FILLED") {
+        console.log( await binance.getPrice(symbolName) )
+        queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
+
+        if (queryMainOrder.status !== "FILLED") {
+            console.log( await binance.getPrice(symbolName) )
+            queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
+            
+            if (queryMainOrder.status !== "FILLED") {
+                console.log( await binance.getPrice(symbolName) )
+                queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
+        
+                
+            } 
+            
+        } 
+        
+    } 
+// filled = ok 
+// new = 0 
+// partialy = amount % 
 
 
     // configure stop loss and take profit
