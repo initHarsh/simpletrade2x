@@ -73,6 +73,13 @@ fs.readFile('withdrawList.json','utf-8',(err,data)=>{
     }
 })
 
+//
+
+async function sleep(seconds) {
+    return new Promise((resolve) =>setTimeout(resolve, seconds * 1000));
+}
+
+
 
 // Database Functions 
 
@@ -537,32 +544,18 @@ async function placeTrade(userId , side , amount) {
     console.log(orderDetail)
     let mainOrder = await binance.newOrder(orderDetail)
     console.log(mainOrder)
-
+    sleep(1)
 
     let queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
     console.log(queryMainOrder)
 
     if (queryMainOrder.status !== "FILLED") {
-        console.log( await binance.getPrice(symbolName) )
-        queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
+        await sleep(2)
 
-        if (queryMainOrder.status !== "FILLED") {
-            console.log( await binance.getPrice(symbolName) )
-            queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
-            
-            if (queryMainOrder.status !== "FILLED") {
-                console.log( await binance.getPrice(symbolName) )
-                queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
-        
-                
-            } 
-            
-        } 
+        queryMainOrder = await binance.queryOrder({symbol : symbolName , orderId : mainOrder.orderId})
+ 
         
     } 
-// filled = ok 
-// new = 0 
-// partialy = amount % 
 
 
     // configure stop loss and take profit
