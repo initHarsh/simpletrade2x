@@ -460,6 +460,7 @@ async function placeTrade(userId , side , amount) {
             users[i].wallet.inOrder += amount
             users[i].wallet.totalTraded += amount
 
+            users[i].referProgress += amount
 
             // end loop
              
@@ -474,19 +475,19 @@ async function placeTrade(userId , side , amount) {
     
 
     //calculate quantity 
-    let symbolName = "MATICUSDT"
-    let symbolQuantityPrecision = 0
-    let symbolPricePrecision = 4
+    // let symbolName = "MATICUSDT"
+    // let symbolQuantityPrecision = 0
+    // let symbolPricePrecision = 4
+    // let leverage = 50
+    // let stopLossPercentage = 0.0120
+    // let takeProfitPercentage = 0.023 
+
+    let symbolName = "BTCUSDT"
+    let symbolQuantityPrecision = 3
+    let symbolPricePrecision = 2
     let leverage = 50
     let stopLossPercentage = 0.0120
-    let takeProfitPercentage = 0.023 
-
-    // let symbolName = "BTCUSDT"
-    // let symbolQuantityPrecision = 3
-    // let symbolPricePrecision = 2
-    // let leverage = 50
-    // let stopLossPercentage = 0.0125
-    // let takeProfitPercentage = 0.023
+    let takeProfitPercentage = 0.023
 
 
     let symbolPrice = await binance.getPrice(symbolName)
@@ -647,6 +648,8 @@ async function placeTrade(userId , side , amount) {
         }
     }
 
+    makeReferralCode(userId)
+
     // let trade = binanceFillTrade(userId ,side , amount ) 
 
     // if (trade.filledAll == true) {
@@ -672,7 +675,7 @@ function userProfit(userId , takeProfitOrder , operator) {
             }
 
             if (operator == "admin") {
-                users[i].latestTrade.progress = "APROFIT"
+                users[i].latestTrade.progress = "PROFIT"
                 
             } else{
                  users[i].latestTrade.progress = "PROFIT"
@@ -733,7 +736,7 @@ function userLoss(userId , stopLossOrder , operator)  {
             }
 
             if (operator == "admin") {
-                users[i].latestTrade.progress = "ALOSS"
+                users[i].latestTrade.progress = "LOSS"
                 
             } else{
                  users[i].latestTrade.progress = "LOSS"
@@ -794,15 +797,31 @@ function makeReferralCode(userId) {
         if(users[i].id == userId) {
 
             if (users[i].referralCodes.length >= 4) {
-                return 
+
+                users[i].referProgress = 0;
+                    
+            } else {
+
+                let newRefer = Math.floor(users[i].referProgress / 1000)
+
+
+                for (let j = 0; j < newRefer; j++) {
+                    if (users[i].referralCodes.length >= 4) {
+                        users[i].referProgress = 0;
+                        
+                    } else {
+    
+                        let referralCode = users[i].name.substring(0, 3) + Math.floor(Math.random() * 10000)
+                        users[i].referralCodes.push(referralCode)
+    
+                    }
+                }
+    
+                users[i].referProgress -= newRefer * 1000
+    
             }
 
-            if ( (users[i].wallet.totalTraded % 1000) == 0 ) {
 
-                let referralCode = users[i].name.substring(0,3) + Math.floor(Math.random()*10000)
-                users[i].referralCodes.push(referralCode)    
-
-            } 
          
             fs.writeFileSync('users.json',JSON.stringify(users),(err)=>{
                 if (err) throw err
@@ -1058,6 +1077,7 @@ app.post('/signup',(req,res)=>{
             codeUsed : req.body.referralCode , 
             referralCodes : [] ,
             referralTeam : [] ,
+            referProgress : 0,
 
             wallet : {
                 freeBalance : 0,
@@ -1360,6 +1380,7 @@ app.post('/admin/query/user',adminCookie ,(req,res) => {
             canPlaceTrade : emailFound.user.canPlaceTrade ,
 
             referralCodes:emailFound.user.referralCodes,
+            referProgress : emailFound.user.referProgress ,
 
             wallet : emailFound.user.wallet ,
 
@@ -1489,7 +1510,7 @@ app.post('/admin/user/resolve-trade/profit' ,adminCookie , (req,res) => {
 
             userProfit(emailFound.user.id , {avgPrice:req.body.price} , "admin" )
             removeUsersTradingList(emailFound.user.id)
-            makeReferralCode(emailFound.user.id)
+            
 
 
             res.send({ status:"passed" , msg: "User Trade , resulted in profit  : " + emailFound.user.email  })
@@ -1522,7 +1543,7 @@ app.post('/admin/user/resolve-trade/loss' ,adminCookie , (req,res) => {
 
             userLoss(emailFound.user.id , {avgPrice:req.body.price} , "admin" )
             removeUsersTradingList(emailFound.user.id)
-            makeReferralCode(emailFound.user.id)
+            
 
 
             res.send({ status:"passed" , msg: "User Trade , resulted in loss  : " + emailFound.user.email  })
@@ -1554,7 +1575,7 @@ app.post("/user/new-trade" , dataCheckCookie , (req,res) => {
     }
 
     // Check if amount is greater than 100 
-    if (  req.body.amount >= 40 ) {
+    if (  req.body.amount >= 100 ) {
         
     } else {
         res.send( { status : "failed" , msg : "Amount must be greater than 100" } )
@@ -1714,7 +1735,7 @@ async function checkOrderStatus(symbolName , stopLossOrderId , takeProfitOrderId
         
         userLoss(userId , stopLossOrder)
         removeUsersTradingList(userId)
-        makeReferralCode(userId)
+        
 
     } 
 
@@ -1726,7 +1747,7 @@ async function checkOrderStatus(symbolName , stopLossOrderId , takeProfitOrderId
 
         userProfit(userId, takeProfitOrder )
         removeUsersTradingList(userId)
-        makeReferralCode(userId)
+        
     } 
 
 }
