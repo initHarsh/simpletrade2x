@@ -475,19 +475,19 @@ async function placeTrade(userId , side , amount) {
     
 
     //calculate quantity 
-    // let symbolName = "MATICUSDT"
-    // let symbolQuantityPrecision = 0
-    // let symbolPricePrecision = 4
-    // let leverage = 50
-    // let stopLossPercentage = 0.0120
-    // let takeProfitPercentage = 0.023 
-
-    let symbolName = "BTCUSDT"
-    let symbolQuantityPrecision = 3
-    let symbolPricePrecision = 2
+    let symbolName = "MATICUSDT"
+    let symbolQuantityPrecision = 0
+    let symbolPricePrecision = 4
     let leverage = 50
     let stopLossPercentage = 0.0120
-    let takeProfitPercentage = 0.023
+    let takeProfitPercentage = 0.023 
+
+    // let symbolName = "BTCUSDT"
+    // let symbolQuantityPrecision = 3
+    // let symbolPricePrecision = 2
+    // let leverage = 50
+    // let stopLossPercentage = 0.0120
+    // let takeProfitPercentage = 0.023
 
 
     let symbolPrice = await binance.getPrice(symbolName)
